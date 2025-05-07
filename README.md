@@ -44,8 +44,8 @@ A web-based student admission system built with Flask and SQLite.
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/PROJECT_PMB_SISWA.git
-cd PROJECT_PMB_SISWA
+git clone https://github.com/liavin5115/PPDB_PROJECT_RPL.git
+cd PPDB_PROJECT_RPL
 ```
 
 2. **Create and activate virtual environment**
@@ -145,9 +145,9 @@ flask create-admin admin password123
 ## 📧 Contact & Support
 
 **Developer:** Rafa Satria Isyo Pratama
-- GitHub: [Your GitHub]
-- Email: [Your Email]
-- LinkedIn: [Your LinkedIn]
+- GitHub: [\[Your GitHub\]](https://github.com/liavin5115)
+- Email: rafa.satria.isyo.pratama.2008@gmail.com
+
 
 ## 📝 License
 
