@@ -100,7 +100,6 @@ PROJECT_PMB_SISWA/
 │       ├── dashboard_user.html
 │       └── dashboard_admin.html
 ├── migrations/              # Database migrations
-├── .env                     # Environment variables
 ├── config.py               # Application configuration
 ├── requirements.txt        # Project dependencies
 └── run.py                 # Application entry point
