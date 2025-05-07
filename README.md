@@ -106,14 +106,6 @@ PROJECT_PMB_SISWA/
 └── run.py                 # Application entry point
 ```
 
-## 🔐 Environment Configuration
-
-Create a `.env` file:
-```env
-FLASK_APP=run.py
-FLASK_ENV=development
-FLASK_DEBUG=1
-```
 
 ## 👥 User Roles & Permissions
 
