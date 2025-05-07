@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>Profile Information</h3>
+                <p><strong>Name:</strong> {{ current_user.name }}</p>
+                <p><strong>Username:</strong> {{ current_user.username }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h3>Application Status</h3>
+                {% if form_status %}
+                    <div class="alert alert-{{ 'success' if form_status == 'accepted' else 'danger' if form_status == 'rejected' else 'info' }}">
+                        Status: {{ form_status.capitalize() }}
+                    </div>
+                {% else %}
+                    <p>No application submitted yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h3>Student Admission Form</h3>
+                {% if not form_submitted %}
+                    <form method="POST" action="{{ url_for('main.submit_form') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Birth Date</label>
+                            {{ form.birth_date(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            {{ form.address(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            {{ form.phone(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Previous School</label>
+                            {{ form.previous_school(class="form-control") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-info">
+                        You have already submitted your application. Please wait for admin review.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+.steps {
+    text-align: left;
+    padding: 20px;
+}
+
+.step {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-left: 3px solid #007bff;
+    background-color: #f8f9fa;
+}
+
+.step h3 {
+    color: #007bff;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.step p {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.card {
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.alert {
+    border-radius: 0;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.badge {
+    padding: 0.5em 1em;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body p {
+    margin-bottom: 0.5rem;
+}
+
+.btn-sm {
+    margin-right: 0.25rem;
+}

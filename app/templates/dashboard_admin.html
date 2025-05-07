@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h2>Student Registration Management</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in forms %}
+                    <tr>
+                        <td>{{ form.id }}</td>
+                        <td>{{ form.user.name }}</td>
+                        <td>{{ form.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'info' }}">
+                                {{ form.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if form.status == 'pending' %}
+                            <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline status-update-form">
+                                <input type="hidden" name="status" value="accepted">
+                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline status-update-form">
+                                <input type="hidden" name="status" value="rejected">
+                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                            {% endif %}
+                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal{{ form.id }}">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% for form in forms %}
+<div class="modal fade" id="detailModal{{ form.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="application-details">
+                    <p><strong>Student Name:</strong> {{ form.user.name }}</p>
+                    {% if form.form_data %}
+                        {% set form_data = form.parsed_form_data %}
+                        <p><strong>Birth Date:</strong> {{ form_data.get('birth_date', '-') }}</p>
+                        <p><strong>Address:</strong> {{ form_data.get('address', '-') }}</p>
+                        <p><strong>Phone Number:</strong> {{ form_data.get('phone', '-') }}</p>
+                        <p><strong>Previous School:</strong> {{ form_data.get('previous_school', '-') }}</p>
+                    {% endif %}
+                    <p><strong>Status:</strong> {{ form.status|title }}</p>
+                    <p><strong>Submitted:</strong> {{ form.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
