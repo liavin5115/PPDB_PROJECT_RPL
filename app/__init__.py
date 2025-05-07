@@ -46,7 +46,8 @@ def create_app():
     app.register_blueprint(main)
 
     # Add CLI commands
-    from .cli import create_admin
+    from .cli import create_admin, delete_user
     app.cli.add_command(create_admin)
+    app.cli.add_command(delete_user)
 
     return app

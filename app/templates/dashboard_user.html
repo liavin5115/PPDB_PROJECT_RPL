@@ -32,8 +32,11 @@
             <div class="card-body">
                 <h3>Student Admission Form</h3>
                 {% if not form_submitted %}
-                    <form method="POST" action="{{ url_for('main.submit_form') }}">
+                    <form method="POST" action="{{ url_for('main.submit_form') }}" enctype="multipart/form-data" id="admission-form">
                         {{ form.hidden_tag() }}
+                        
+                        <!-- Personal Information -->
+                        <h4 class="mb-3">Personal Information</h4>
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
                             <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
@@ -54,6 +57,47 @@
                             <label class="form-label">Previous School</label>
                             {{ form.previous_school(class="form-control") }}
                         </div>
+
+                        <!-- Required Documents -->
+                        <h4 class="mb-3 mt-4">Required Documents</h4>
+                        <div class="mb-3">
+                            <label class="form-label">Graduation Certificate/SKL</label>
+                            {{ form.graduation_certificate(class="form-control") }}
+                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Birth Certificate</label>
+                            {{ form.birth_certificate(class="form-control") }}
+                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Family Card (KK)</label>
+                            {{ form.family_card(class="form-control") }}
+                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Report Card Summary</label>
+                            {{ form.report_card(class="form-control") }}
+                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Passport Photo (3x4 or 4x6)</label>
+                            {{ form.photo(class="form-control") }}
+                            <small class="text-muted">Accepted formats: JPG, PNG</small>
+                        </div>
+
+                        <!-- Registration Track -->
+                        <h4 class="mb-3 mt-4">Registration Track</h4>
+                        <div class="mb-3">
+                            <label class="form-label">Select Track</label>
+                            {{ form.registration_track(class="form-control") }}
+                        </div>
+                        <div class="mb-3" id="track-document-section" style="display: none;">
+                            <label class="form-label">Track-specific Document</label>
+                            {{ form.track_document(class="form-control") }}
+                            <small class="text-muted">Upload the required document for your selected track</small>
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Submit Application</button>
                     </form>
                 {% else %}
@@ -65,4 +109,40 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const trackSelect = document.querySelector('#registration_track');
+    const trackDocSection = document.querySelector('#track-document-section');
+    
+    if (trackSelect && trackDocSection) {
+        trackSelect.addEventListener('change', function() {
+            if (this.value) {
+                trackDocSection.style.display = 'block';
+                const label = trackDocSection.querySelector('label');
+                const small = trackDocSection.querySelector('small');
+                
+                switch(this.value) {
+                    case 'achievement':
+                        label.textContent = 'Achievement Certificates';
+                        small.textContent = 'Upload certificates of academic or non-academic achievements';
+                        break;
+                    case 'affirmation':
+                        label.textContent = 'Affirmation Documents';
+                        small.textContent = 'Upload supporting documents proving eligibility';
+                        break;
+                    case 'domicile':
+                        label.textContent = 'Residence Certificate';
+                        small.textContent = 'Upload residence certificate legalized by RT/RW and kelurahan';
+                        break;
+                }
+            } else {
+                trackDocSection.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

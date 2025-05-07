@@ -18,3 +18,16 @@ def create_admin(username, password):
     db.session.add(admin)
     db.session.commit()
     click.echo(f'Created admin user: {username}')
+
+@click.command('delete-user')
+@click.argument('username')
+@with_appcontext
+def delete_user(username):
+    """Delete a user by username."""
+    user = User.query.filter_by(username=username).first()
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        click.echo(f'User {username} deleted successfully.')
+    else:
+        click.echo(f'User {username} not found.')
