@@ -3,40 +3,195 @@
 {% block title %}Selamat Datang{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 text-center">
-        <h1 class="mb-4">Selamat Datang di Sistem PPDB</h1>
-        <div class="card">
-            <div class="card-body">
-                <h2>Langkah-langkah Pendaftaran</h2>
-                <div class="steps mt-4">
-                    <div class="step">
-                        <h3>1. Buat Akun</h3>
-                        <p>Daftar dengan informasi pribadi Anda untuk memulai</p>
+<!-- Hero Section -->
+<div class="hero-section text-center py-5 mb-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Selamat Datang di PPDB Online</h1>
+        <p class="lead mb-4">SMK Negeri 1 Kota Bekasi - Membentuk Generasi Unggul dan Profesional</p>
+        {% if not current_user.is_authenticated %}
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-person-plus-fill me-2"></i>Daftar Sekarang
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
+                </a>
+            </div>
+        {% else %}
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg px-4">
+                <i class="bi bi-grid-fill me-2"></i>Dashboard Saya
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- School Profile Section -->
+<section class="school-profile py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="section-title mb-4">Tentang Sekolah Kami</h2>
+                <p class="text-muted">SMK Negeri 1 Kota Bekasi adalah sekolah menengah kejuruan unggulan yang berfokus pada pengembangan kompetensi siswa dalam bidang teknologi dan industri.</p>
+                <div class="features-list mt-4">
+                    <div class="feature-item d-flex align-items-center mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        <span>Akreditasi A dari BAN-SM</span>
                     </div>
-                    <div class="step">
-                        <h3>2. Masuk ke Akun</h3>
-                        <p>Akses dashboard menggunakan kredensial Anda</p>
+                    <div class="feature-item d-flex align-items-center mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        <span>Fasilitas pembelajaran modern</span>
                     </div>
-                    <div class="step">
-                        <h3>3. Isi Formulir Pendaftaran</h3>
-                        <p>Lengkapi formulir pendaftaran siswa dengan data yang diperlukan</p>
-                    </div>
-                    <div class="step">
-                        <h3>4. Tunggu Persetujuan</h3>
-                        <p>Pantau status pendaftaran Anda di dashboard</p>
+                    <div class="feature-item d-flex align-items-center mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        <span>Kerjasama dengan industri terkemuka</span>
                     </div>
                 </div>
-                <div class="mt-4">
-                    {% if not current_user.is_authenticated %}
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary me-2">Daftar Sekarang</a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Masuk</a>
-                    {% else %}
-                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Ke Dashboard</a>
-                    {% endif %}
+            </div>
+            <div class="col-md-6">
+                <img src="{{ url_for('static', filename='img/school.jpg') }}" alt="School Building" class="img-fluid rounded-3 shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Programs Section -->
+<section class="programs py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Program Keahlian</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="program-icon text-primary mb-3">
+                            <i class="bi bi-cpu-fill fs-1"></i>
+                        </div>
+                        <h3 class="card-title h5">Teknik Komputer dan Jaringan</h3>
+                        <p class="card-text text-muted">Mengembangkan keahlian dalam instalasi jaringan, maintenance hardware, dan sistem keamanan komputer.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="program-icon text-primary mb-3">
+                            <i class="bi bi-code-square fs-1"></i>
+                        </div>
+                        <h3 class="card-title h5">Rekayasa Perangkat Lunak</h3>
+                        <p class="card-text text-muted">Mempelajari pengembangan aplikasi, pemrograman, dan manajemen basis data.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="program-icon text-primary mb-3">
+                            <i class="bi bi-brush-fill fs-1"></i>
+                        </div>
+                        <h3 class="card-title h5">Multimedia</h3>
+                        <p class="card-text text-muted">Fokus pada desain grafis, animasi, dan produksi konten digital kreatif.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Registration Steps -->
+<section class="registration-steps py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Langkah Pendaftaran</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="registration-step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h3 class="step-title">Buat Akun</h3>
+                    <p class="step-description">
+                        Daftar dengan email aktif dan lengkapi data diri Anda untuk memulai proses pendaftaran
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="registration-step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                    </div>
+                    <h3 class="step-title">Lengkapi Dokumen</h3>
+                    <p class="step-description">
+                        Upload dokumen persyaratan yang diperlukan seperti Ijazah/SKL, Akta, KK, dan lainnya
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="registration-step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h3 class="step-title">Verifikasi</h3>
+                    <p class="step-description">
+                        Tunggu proses verifikasi data dan dokumen oleh tim PPDB sekolah
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="registration-step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-credit-card-fill"></i>
+                    </div>
+                    <h3 class="step-title">Pembayaran</h3>
+                    <p class="step-description">
+                        Lakukan pembayaran biaya pendaftaran setelah dinyatakan diterima
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="section-title mb-4">Informasi Kontak</h2>
+                <div class="contact-info">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                        <span>Jl. Sekolah No. 123, Bekasi</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-telephone-fill text-primary me-2"></i>
+                        <span>(021) 1234567</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-envelope-fill text-primary me-2"></i>
+                        <span>info@smkn1bekasi.sch.id</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h2 class="section-title mb-4">Jalur Pendaftaran</h2>
+                <div class="registration-tracks">
+                    <div class="track-item mb-3">
+                        <h4 class="h5"><i class="bi bi-trophy-fill text-warning me-2"></i>Jalur Prestasi</h4>
+                        <p class="text-muted">Untuk siswa dengan prestasi akademik dan non-akademik</p>
+                    </div>
+                    <div class="track-item mb-3">
+                        <h4 class="h5"><i class="bi bi-heart-fill text-danger me-2"></i>Jalur Afirmasi</h4>
+                        <p class="text-muted">Untuk siswa dari keluarga tidak mampu dan difabel</p>
+                    </div>
+                    <div class="track-item mb-3">
+                        <h4 class="h5"><i class="bi bi-geo-fill text-success me-2"></i>Jalur Zonasi</h4>
+                        <p class="text-muted">Berdasarkan jarak tempat tinggal ke sekolah</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

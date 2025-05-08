@@ -59,4 +59,64 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Initialize toasts
+    const toastElList = document.querySelectorAll('.toast');
+    const toasts = [...toastElList].map(toastEl => {
+        const toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+        toast.show();
+        return toast;
+    });
+
+    // Theme toggler
+    const themeToggle = document.getElementById('themeToggle');
+    const lightIcon = document.getElementById('lightIcon');
+    const darkIcon = document.getElementById('darkIcon');
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            lightIcon.classList.toggle('d-none');
+            darkIcon.classList.toggle('d-none');
+        });
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    if (savedTheme === 'dark') {
+        lightIcon.classList.add('d-none');
+        darkIcon.classList.remove('d-none');
+    }
+
+    // File input preview
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const fileLabel = this.nextElementSibling;
+            if (fileLabel && this.files.length > 0) {
+                fileLabel.textContent = this.files[0].name;
+            }
+        });
+    });
+
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    });
 });
