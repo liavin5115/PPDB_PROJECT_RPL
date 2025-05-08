@@ -105,101 +105,365 @@
                         <button type="submit" class="btn btn-primary">Kirim Pendaftaran</button>
                     </form>
                 {% else %}
-                    <div class="alert alert-info">
-                        Status pendaftaran Anda: {{ form.status|title }}
-                    </div>
-                    
-                    {% if form.status == 'accepted' and form.payment_status == 'unsubmitted' %}
-                        <div class="payment-section">
-                            <h4>Informasi Pembayaran</h4>
-                            <div class="alert alert-info">
-                                <h5>Rincian Biaya:</h5>
-                                <p><strong>Jumlah:</strong> Rp. 500,000</p>
-                                <p><strong>Bank:</strong> BCA</p>
-                                <p><strong>No. Rekening:</strong> 1234567890</p>
-                                <p><strong>Atas Nama:</strong> PPDB SEKOLAH</p>
-                            </div>
-                            
-                            <form method="POST" action="{{ url_for('main.submit_payment') }}" enctype="multipart/form-data">
-                                {{ payment_form.hidden_tag() }}
-                                <div class="mb-3">
-                                    <label class="form-label">Upload Bukti Pembayaran</label>
-                                    {{ payment_form.payment_proof(class="form-control") }}
-                                    <small class="text-muted">Upload bukti transfer/pembayaran (jpg, png, pdf)</small>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Kirim Bukti Pembayaran</button>
-                            </form>
+                    <div class="submitted-data">
+                        <div class="alert alert-info mb-4">
+                            Status pendaftaran Anda: 
+                            <strong>
+                                {% if form.status == 'pending' %}
+                                    Menunggu Verifikasi
+                                {% elif form.status == 'accepted' %}
+                                    Diterima
+                                {% elif form.status == 'rejected' %}
+                                    Ditolak
+                                {% endif %}
+                            </strong>
                         </div>
-                    {% endif %}
+
+                        <h4 class="mb-4">Data Pendaftaran</h4>
+                        
+                        <!-- Personal Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Informasi Pribadi</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Nama Lengkap:</strong><br>{{ form.user.name }}</p>
+                                        <p><strong>Tanggal Lahir:</strong><br>{{ form.parsed_form_data.birth_date }}</p>
+                                        <p><strong>Nomor Telepon:</strong><br>{{ form.parsed_form_data.phone }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Alamat:</strong><br>{{ form.parsed_form_data.address }}</p>
+                                        <p><strong>Sekolah Asal:</strong><br>{{ form.parsed_form_data.previous_school }}</p>
+                                        <p><strong>Tanggal Pendaftaran:</strong><br>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Dokumen yang Diupload</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {% if form.graduation_certificate_data %}
+                                            <p><i class="bi bi-check-circle-fill text-success"></i> Ijazah/SKL</p>
+                                        {% endif %}
+                                        {% if form.birth_certificate_data %}
+                                            <p><i class="bi bi-check-circle-fill text-success"></i> Akta Kelahiran</p>
+                                        {% endif %}
+                                        {% if form.family_card_data %}
+                                            <p><i class="bi bi-check-circle-fill text-success"></i> Kartu Keluarga</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if form.report_card_data %}
+                                            <p><i class="bi bi-check-circle-fill text-success"></i> Rapor</p>
+                                        {% endif %}
+                                        {% if form.photo_data %}
+                                            <p><i class="bi bi-check-circle-fill text-success"></i> Pas Foto</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Track -->
+                        {% if form.registration_track %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Jalur Pendaftaran</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Jalur yang Dipilih:</strong><br>
+                                    {% if form.registration_track == 'achievement' %}
+                                        Jalur Prestasi
+                                    {% elif form.registration_track == 'affirmation' %}
+                                        Jalur Afirmasi
+                                    {% elif form.registration_track == 'domicile' %}
+                                        Jalur Domisili
+                                    {% endif %}
+                                </p>
+                                
+                                {% if form.achievement_docs_data or form.affirmation_docs_data or form.domicile_docs_data %}
+                                    <p><i class="bi bi-check-circle-fill text-success"></i> Dokumen pendukung telah diupload</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Payment Section -->
+                        {% if form.status == 'accepted' %}
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Informasi Pembayaran</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Status Pembayaran:</strong><br>
+                                        {% if form.payment_status == 'unsubmitted' %}
+                                            <span class="badge bg-warning">Belum Dibayar</span>
+                                        {% elif form.payment_status == 'submitted' %}
+                                            <span class="badge bg-info">Menunggu Verifikasi</span>
+                                        {% elif form.payment_status == 'verified' %}
+                                            <span class="badge bg-success">Terverifikasi</span>
+                                        {% endif %}
+                                    </p>
+                                    
+                                    {% if form.payment_date %}
+                                        <p><strong>Tanggal Pembayaran:</strong><br>
+                                            {{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if form.payment_status == 'unsubmitted' %}
+                                        <form method="POST" action="{{ url_for('main.submit_payment') }}" enctype="multipart/form-data">
+                                            {{ payment_form.hidden_tag() }}
+                                            <div class="mb-3">
+                                                <label class="form-label">Upload Bukti Pembayaran</label>
+                                                {{ payment_form.payment_proof(class="form-control") }}
+                                                <small class="text-muted">Upload bukti transfer/pembayaran (jpg, png, pdf)</small>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Kirim Bukti Pembayaran</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
+        <!-- Notifications Card -->
         <div class="card mb-4">
             <div class="card-body">
-                <h3>Status Pendaftaran</h3>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Notifikasi</h5>
+                    <span class="badge bg-primary rounded-pill">{{ notifications|length }}</span>
+                </div>
+                <div class="notifications-box">
+                    {% if form %}
+                        {% if form.status == 'pending' %}
+                            <div class="notification-item">
+                                <div class="notification-icon bg-info">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h6 class="notification-title">Menunggu Verifikasi</h6>
+                                    <p class="notification-text">Dokumen Anda sedang dalam proses verifikasi</p>
+                                    <small class="notification-time">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if form.status == 'accepted' %}
+                            <div class="notification-item">
+                                <div class="notification-icon bg-success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h6 class="notification-title">Pendaftaran Diterima</h6>
+                                    <p class="notification-text">Selamat! Pendaftaran Anda telah diterima</p>
+                                    <small class="notification-time">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
+                                </div>
+                            </div>
+
+                            {% if form.payment_status == 'unsubmitted' %}
+                                <div class="notification-item">
+                                    <div class="notification-icon bg-warning">
+                                        <i class="bi bi-credit-card"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <h6 class="notification-title">Pembayaran Diperlukan</h6>
+                                        <p class="notification-text">Silakan melakukan pembayaran biaya pendaftaran</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if form.payment_status == 'submitted' %}
+                                <div class="notification-item">
+                                    <div class="notification-icon bg-info">
+                                        <i class="bi bi-hourglass-split"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <h6 class="notification-title">Verifikasi Pembayaran</h6>
+                                        <p class="notification-text">Pembayaran Anda sedang diverifikasi</p>
+                                        <small class="notification-time">{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</small>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if form.payment_status == 'verified' %}
+                                <div class="notification-item">
+                                    <div class="notification-icon bg-success">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <h6 class="notification-title">Pembayaran Terverifikasi</h6>
+                                        <p class="notification-text">Pembayaran Anda telah dikonfirmasi</p>
+                                        <small class="notification-time">{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</small>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if form.status == 'rejected' %}
+                            <div class="notification-item">
+                                <div class="notification-icon bg-danger">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h6 class="notification-title">Pendaftaran Ditolak</h6>
+                                    <p class="notification-text">Maaf, pendaftaran Anda tidak dapat diterima</p>
+                                    <small class="notification-time">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-bell-slash fs-4 mb-2"></i>
+                            <p>Belum ada notifikasi</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Status Card -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Status Pendaftaran</h5>
                 {% if form %}
+                    <!-- Progress Bar -->
                     <div class="progress-tracker mb-4">
-                        <div class="progress mb-3">
-                            <div class="progress-bar {{ 'bg-danger' if form.status == 'rejected' }}" 
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated {{ 'bg-danger' if form.status == 'rejected' }}" 
                                  role="progressbar" 
                                  style="width: {{ form.progress_percentage }}%"
                                  aria-valuenow="{{ form.progress_percentage }}" 
                                  aria-valuemin="0" 
                                  aria-valuemax="100">
-                                {{ form.progress_percentage }}%
                             </div>
                         </div>
-                        
-                        <div class="progress-steps">
-                            <div class="step {{ 'active' if form.status != 'rejected' }} {{ 'completed' if form.status != 'pending' }}">
-                                <div class="step-circle">1</div>
-                                <div class="step-label">Terkirim</div>
-                            </div>
-                            
-                            <div class="step {{ 'active' if form.status == 'accepted' }} {{ 'completed' if form.payment_status in ['submitted', 'verified'] }}">
-                                <div class="step-circle">2</div>
-                                <div class="step-label">Diterima</div>
-                            </div>
-                            
-                            <div class="step {{ 'active' if form.payment_status == 'submitted' }} {{ 'completed' if form.payment_status == 'verified' }}">
-                                <div class="step-circle">3</div>
-                                <div class="step-label">Pembayaran</div>
-                            </div>
-                            
-                            <div class="step {{ 'active' if form.payment_status == 'verified' }}">
-                                <div class="step-circle">4</div>
-                                <div class="step-label">Terverifikasi</div>
-                            </div>
+                        <div class="text-end text-muted mt-1">
+                            <small>{{ form.progress_percentage }}% selesai</small>
                         </div>
                     </div>
 
-                    <div class="alert alert-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'info' }}">
-                        <strong>Status:</strong> 
-                        {% if form.status == 'pending' %}
-                            Menunggu Verifikasi
-                        {% elif form.status == 'accepted' %}
-                            Diterima
-                        {% elif form.status == 'rejected' %}
-                            Ditolak
-                        {% endif %}
-                        
-                        {% if form.payment_status and form.status == 'accepted' %}
-                            <br>
-                            <strong>Status Pembayaran:</strong>
-                            {% if form.payment_status == 'unsubmitted' %}
-                                Belum Dibayar
-                            {% elif form.payment_status == 'submitted' %}
-                                Menunggu Verifikasi
-                            {% elif form.payment_status == 'verified' %}
-                                Terverifikasi
+                    <!-- Status Steps -->
+                    <div class="status-steps">
+                        <div class="status-step {{ 'completed' if form.status != 'pending' }} {{ 'active' if form.status == 'pending' }}">
+                            <div class="status-icon">
+                                <i class="bi {{ 'bi-check-circle-fill' if form.status != 'pending' else 'bi-circle-fill' }}"></i>
+                            </div>
+                            <div class="status-content">
+                                <h6 class="mb-1">Pendaftaran Terkirim</h6>
+                                <p class="text-muted small mb-0">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="status-step {{ 'completed' if form.status == 'accepted' }} {{ 'active' if form.status == 'pending' }} {{ 'rejected' if form.status == 'rejected' }}">
+                            <div class="status-icon">
+                                {% if form.status == 'accepted' %}
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                {% elif form.status == 'rejected' %}
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                {% else %}
+                                    <i class="bi bi-clock-fill text-warning"></i>
+                                {% endif %}
+                            </div>
+                            <div class="status-content">
+                                <h6 class="mb-1">Verifikasi Berkas</h6>
+                                <p class="text-muted small mb-0">
+                                    {% if form.status == 'pending' %}
+                                        Sedang diverifikasi
+                                    {% elif form.status == 'accepted' %}
+                                        Berkas diterima
+                                    {% elif form.status == 'rejected' %}
+                                        Berkas ditolak
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if form.status == 'accepted' %}
+                            <div class="status-step {{ 'completed' if form.payment_status in ['submitted', 'verified'] }} {{ 'active' if form.payment_status == 'unsubmitted' }}">
+                                <div class="status-icon">
+                                    {% if form.payment_status == 'verified' %}
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    {% elif form.payment_status == 'submitted' %}
+                                        <i class="bi bi-clock-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="bi bi-circle"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="status-content">
+                                    <h6 class="mb-1">Pembayaran</h6>
+                                    <p class="text-muted small mb-0">
+                                        {% if form.payment_status == 'unsubmitted' %}
+                                            Menunggu pembayaran
+                                        {% elif form.payment_status == 'submitted' %}
+                                            Menunggu verifikasi
+                                        {% elif form.payment_status == 'verified' %}
+                                            Pembayaran terverifikasi
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {% if form.payment_status == 'verified' %}
+                                <div class="status-step completed">
+                                    <div class="status-icon">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    </div>
+                                    <div class="status-content">
+                                        <h6 class="mb-1">Pendaftaran Selesai</h6>
+                                        <p class="text-muted small mb-0">Selamat! Anda telah diterima</p>
+                                    </div>
+                                </div>
                             {% endif %}
                         {% endif %}
                     </div>
+
+                    <!-- Current Status Alert -->
+                    <div class="alert alert-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'info' }} mt-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi {{ 'bi-check-circle-fill' if form.status == 'accepted' else 'bi-x-circle-fill' if form.status == 'rejected' else 'bi-info-circle-fill' }} me-2"></i>
+                            <div>
+                                <strong>Status Saat Ini:</strong><br>
+                                {% if form.status == 'pending' %}
+                                    Menunggu Verifikasi
+                                {% elif form.status == 'accepted' %}
+                                    Diterima
+                                {% elif form.status == 'rejected' %}
+                                    Ditolak
+                                {% endif %}
+                                
+                                {% if form.payment_status and form.status == 'accepted' %}
+                                    <br>
+                                    <strong>Status Pembayaran:</strong><br>
+                                    {% if form.payment_status == 'unsubmitted' %}
+                                        Belum Dibayar
+                                    {% elif form.payment_status == 'submitted' %}
+                                        Menunggu Verifikasi
+                                    {% elif form.payment_status == 'verified' %}
+                                        Terverifikasi
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
-                    <p>Belum ada pendaftaran yang diajukan.</p>
+                    <div class="text-center py-4">
+                        <i class="bi bi-file-earmark-text text-muted display-4"></i>
+                        <p class="mt-3">Belum ada pendaftaran yang diajukan.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>

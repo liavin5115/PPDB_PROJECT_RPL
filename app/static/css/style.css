@@ -368,10 +368,13 @@ body {
     height: 0.8rem;
     border-radius: 1rem;
     margin-bottom: 2rem;
+    background-color: var(--bs-border-color);
+    overflow: hidden;
 }
 
 .progress-bar {
     background-color: var(--primary-color);
+    border-radius: 1rem;
     transition: width 0.6s ease;
 }
 
@@ -524,6 +527,79 @@ body {
     background-color: rgba(var(--bs-primary-rgb), 0.2);
 }
 
+/* Status Steps Styling */
+.status-steps {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.status-step {
+    position: relative;
+    padding-bottom: 1.5rem;
+    padding-left: 0.5rem;
+}
+
+.status-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 2rem;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--bs-border-color);
+}
+
+.status-step.completed:not(:last-child)::before {
+    background-color: var(--bs-success);
+}
+
+.status-icon {
+    position: absolute;
+    left: -2rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bs-body-bg);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.status-step.completed .status-icon i {
+    color: var(--bs-success);
+}
+
+.status-step.active .status-icon i {
+    color: var(--bs-warning);
+}
+
+.status-step.rejected .status-icon i {
+    color: var(--bs-danger);
+}
+
+.status-content {
+    padding-left: 0.5rem;
+}
+
+.status-content h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Dark mode overrides */
+[data-bs-theme="dark"] .status-icon {
+    background-color: var(--bs-body-bg);
+}
+
+[data-bs-theme="dark"] .status-step:not(:last-child)::before {
+    background-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .status-step.completed:not(:last-child)::before {
+    background-color: var(--bs-success);
+}
+
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
     .registration-step-card {
@@ -626,4 +702,141 @@ body {
 [data-bs-theme="dark"] .step:hover {
     border-color: var(--bs-primary);
     background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Notifications Section */
+.notifications-section {
+    position: relative;
+    z-index: 1030;
+}
+
+.notifications-section .alert {
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.notifications-section .alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    border-left: 4px solid var(--bs-success);
+    color: var(--bs-success);
+}
+
+.notifications-section .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left: 4px solid var(--bs-danger);
+    color: var(--bs-danger);
+}
+
+.notifications-section .alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 4px solid var(--bs-warning);
+    color: var(--bs-warning);
+}
+
+.notifications-section .alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    border-left: 4px solid var(--bs-info);
+    color: var(--bs-info);
+}
+
+/* Dark mode overrides for notifications */
+[data-bs-theme="dark"] .notifications-section .alert {
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+
+[data-bs-theme="dark"] .notifications-section .alert-success {
+    background-color: rgba(25, 135, 84, 0.15);
+    color: #198754;
+}
+
+[data-bs-theme="dark"] .notifications-section .alert-danger {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+[data-bs-theme="dark"] .notifications-section .alert-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+[data-bs-theme="dark"] .notifications-section .alert-info {
+    background-color: rgba(13, 202, 240, 0.15);
+    color: #0dcaf0;
+}
+
+[data-bs-theme="dark"] .notifications-section .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Notifications Box Styles */
+.notifications-box {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    padding: 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    transition: background-color 0.3s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.notification-icon i {
+    color: white;
+    font-size: 1.2rem;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.notification-text {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--bs-text-muted);
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] .notification-item:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+[data-bs-theme="dark"] .notification-text {
+    color: var(--bs-text-muted);
+}
+
+[data-bs-theme="dark"] .notification-time {
+    color: var(--bs-text-muted);
 }

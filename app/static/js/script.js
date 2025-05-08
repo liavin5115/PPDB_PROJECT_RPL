@@ -27,6 +27,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
+    // Initialize alert dismissal
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        const closeBtn = alert.querySelector('.btn-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 150);
+            });
+        }
+        
+        // Auto-hide after 10 seconds (optional)
+        // setTimeout(() => {
+        //     alert.classList.remove('show');
+        //     setTimeout(() => alert.remove(), 150);
+        // }, 10000);
+    });
+
     // Handle track selection and document visibility
     const trackSelect = document.getElementById('registration_track');
     const trackDocs = document.getElementById('trackDocs');
