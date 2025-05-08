@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Dashboard Admin{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <h2>Student Registration Management</h2>
+        <h2>Manajemen Pendaftaran Siswa</h2>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Student Name</th>
-                        <th>Submission Date</th>
+                        <th>Nama Siswa</th>
+                        <th>Tanggal Daftar</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th>Status Pembayaran</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,25 +23,55 @@
                     <tr>
                         <td>{{ form.id }}</td>
                         <td>{{ form.user.name }}</td>
-                        <td>{{ form.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ form.timestamp.strftime('%H:%M:%S') }}<br>
+                            {{ form.timestamp.strftime('%d-%m-%Y') }}</td>
                         <td>
                             <span class="badge bg-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'info' }}">
-                                {{ form.status }}
+                                {% if form.status == 'pending' %}
+                                    Menunggu Verifikasi
+                                {% elif form.status == 'accepted' %}
+                                    Diterima
+                                {% elif form.status == 'rejected' %}
+                                    Ditolak
+                                {% endif %}
                             </span>
                         </td>
                         <td>
-                            {% if form.status == 'pending' %}
-                            <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline status-update-form">
-                                <input type="hidden" name="status" value="accepted">
-                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                            </form>
-                            <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline status-update-form">
-                                <input type="hidden" name="status" value="rejected">
-                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                            </form>
+                            {% if form.status == 'accepted' %}
+                                <span class="badge bg-{{ 'success' if form.payment_status == 'verified' 
+                                                    else 'warning' if form.payment_status == 'submitted'
+                                                    else 'secondary' }}">
+                                    {% if form.payment_status == 'unsubmitted' %}
+                                        Belum Dibayar
+                                    {% elif form.payment_status == 'submitted' %}
+                                        Menunggu Verifikasi
+                                    {% elif form.payment_status == 'verified' %}
+                                        Terverifikasi
+                                    {% endif %}
+                                </span>
                             {% endif %}
-                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal{{ form.id }}">
-                                View Details
+                        </td>
+                        <td>
+                            {% if form.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="accepted">
+                                    <button type="submit" class="btn btn-success btn-sm">Terima</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline">
+                                    <input type="hidden" name="status" value="rejected">
+                                    <button type="submit" class="btn btn-danger btn-sm">Tolak</button>
+                                </form>
+                            {% endif %}
+                            
+                            {% if form.payment_status == 'submitted' %}
+                                <form method="POST" action="{{ url_for('main.verify_payment', form_id=form.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-primary btn-sm">Verifikasi Pembayaran</button>
+                                </form>
+                            {% endif %}
+                            
+                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" 
+                                    data-bs-target="#detailModal{{ form.id }}">
+                                Lihat Detail
                             </button>
                         </td>
                     </tr>
@@ -53,274 +84,122 @@
 
 {% for form in forms %}
 <div class="modal fade" id="detailModal{{ form.id }}" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Application Details</h5>
+                <h5 class="modal-title">Detail Pendaftaran</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="application-details">
-                    <p><strong>Student Name:</strong> {{ form.user.name }}</p>
+                    <p><strong>Nama Siswa:</strong> {{ form.user.name }}</p>
                     {% if form.form_data %}
                         {% set form_data = form.parsed_form_data %}
-                        <p><strong>Birth Date:</strong> {{ form_data.get('birth_date', '-') }}</p>
-                        <p><strong>Address:</strong> {{ form_data.get('address', '-') }}</p>
-                        <p><strong>Phone Number:</strong> {{ form_data.get('phone', '-') }}</p>
-                        <p><strong>Previous School:</strong> {{ form_data.get('previous_school', '-') }}</p>
+                        <p><strong>Tanggal Lahir:</strong> {{ form_data.get('birth_date', '-') }}</p>
+                        <p><strong>Alamat:</strong> {{ form_data.get('address', '-') }}</p>
+                        <p><strong>Nomor Telepon:</strong> {{ form_data.get('phone', '-') }}</p>
+                        <p><strong>Sekolah Asal:</strong> {{ form_data.get('previous_school', '-') }}</p>
                     {% endif %}
-                    <p><strong>Status:</strong> {{ form.status|title }}</p>
-                    <p><strong>Submitted:</strong> {{ form.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if form.status == 'pending' %}
+                            Menunggu Verifikasi
+                        {% elif form.status == 'accepted' %}
+                            Diterima
+                        {% elif form.status == 'rejected' %}
+                            Ditolak
+                        {% endif %}
+                    </p>
+                    <p><strong>Tanggal Daftar:</strong> {{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
+                    
+                    <!-- Documents section -->
                     <hr>
-                    <h6>Documents</h6>
+                    <h6>Dokumen</h6>
                     <div class="document-links">
-                        {% if form.graduation_certificate %}
-                        <p><strong>Graduation Certificate:</strong> 
-                            <a href="{{ url_for('static', filename='uploads/' + form.graduation_certificate) }}" target="_blank">View</a>
-                        </p>
-                        {% endif %}
-                        {% if form.birth_certificate %}
-                        <p><strong>Birth Certificate:</strong>
-                            <a href="{{ url_for('static', filename='uploads/' + form.birth_certificate) }}" target="_blank">View</a>
-                        </p>
-                        {% endif %}
-                        {% if form.family_card %}
-                        <p><strong>Family Card:</strong>
-                            <a href="{{ url_for('static', filename='uploads/' + form.family_card) }}" target="_blank">View</a>
-                        </p>
-                        {% endif %}
-                        {% if form.report_card %}
-                        <p><strong>Report Card:</strong>
-                            <a href="{{ url_for('static', filename='uploads/' + form.report_card) }}" target="_blank">View</a>
-                        </p>
-                        {% endif %}
-                        {% if form.photo %}
-                        <p><strong>Photo:</strong>
-                            <a href="{{ url_for('static', filename='uploads/' + form.photo) }}" target="_blank">View</a>
-                        </p>
-                        {% endif %}
-                        {% if form.track_document %}
-                        <p><strong>{{ form.registration_track|title }} Track Document:</strong>
-                            <a href="{{ url_for('static', filename='uploads/' + form.track_document) }}" target="_blank">View</a>
-                        </p>
-                        {% endif %}
                         {% if form.graduation_certificate_data %}
-                        <p><strong>Graduation Certificate:</strong> 
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_grad">
-                                View
-                            </button>
+                        <p><strong>Ijazah/SKL:</strong> 
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                    data-bs-target="#fileModal{{ form.id }}_graduation_certificate">Lihat</button>
                         </p>
                         {% endif %}
+                        
                         {% if form.birth_certificate_data %}
-                        <p><strong>Birth Certificate:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_birth">
-                                View
-                            </button>
+                        <p><strong>Akta Kelahiran:</strong>
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                    data-bs-target="#fileModal{{ form.id }}_birth_certificate">Lihat</button>
                         </p>
                         {% endif %}
+                        
                         {% if form.family_card_data %}
-                        <p><strong>Family Card:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_family">
-                                View
-                            </button>
+                        <p><strong>Kartu Keluarga:</strong>
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                    data-bs-target="#fileModal{{ form.id }}_family_card">Lihat</button>
                         </p>
                         {% endif %}
+                        
                         {% if form.report_card_data %}
-                        <p><strong>Report Card:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_report">
-                                View
-                            </button>
+                        <p><strong>Rapor:</strong>
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                    data-bs-target="#fileModal{{ form.id }}_report_card">Lihat</button>
                         </p>
                         {% endif %}
+                        
                         {% if form.photo_data %}
-                        <p><strong>Photo:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_photo">
-                                View
-                            </button>
+                        <p><strong>Pas Foto:</strong>
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                    data-bs-target="#fileModal{{ form.id }}_photo">Lihat</button>
                         </p>
                         {% endif %}
-                        {% if form.track_document_data %}
-                        <p><strong>{{ form.registration_track|title }} Track Document:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_track">
-                                View
-                            </button>
-                        </p>
+
+                        {% if form.registration_track %}
+                            <p><strong>Jalur Pendaftaran:</strong> 
+                                {% if form.registration_track == 'achievement' %}
+                                    Jalur Prestasi
+                                {% elif form.registration_track == 'affirmation' %}
+                                    Jalur Afirmasi
+                                {% elif form.registration_track == 'domicile' %}
+                                    Jalur Domisili
+                                {% endif %}
+                                {% if form[form.registration_track + '_docs_data'] %}
+                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                            data-bs-target="#fileModal{{ form.id }}_track">Lihat Dokumen</button>
+                                {% endif %}
+                            </p>
                         {% endif %}
                     </div>
+
+                    <!-- Payment section -->
+                    {% if form.status == 'accepted' %}
+                    <hr>
+                    <h6>Informasi Pembayaran</h6>
+                    <p><strong>Status Pembayaran:</strong> 
+                        {% if form.payment_status == 'unsubmitted' %}
+                            Belum Dibayar
+                        {% elif form.payment_status == 'submitted' %}
+                            Menunggu Verifikasi
+                        {% elif form.payment_status == 'verified' %}
+                            Terverifikasi
+                        {% endif %}
+                    </p>
+                    {% if form.payment_date %}
+                        <p><strong>Tanggal Pembayaran:</strong> {{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</p>
+                    {% endif %}
+                    {% if form.payment_proof_data %}
+                        <p><strong>Bukti Pembayaran:</strong>
+                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
+                                    data-bs-target="#fileModal{{ form.id }}_payment">Lihat Bukti</button>
+                        </p>
+                    {% endif %}
+                    {% endif %}
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
 </div>
-{% endfor %}
 
-{% for form in forms %}
-    <!-- Graduation Certificate Modal -->
-    {% if form.graduation_certificate_data %}
-    <div class="modal fade" id="fileModal{{ form.id }}_grad" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Graduation Certificate</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    {% if form.graduation_certificate_mimetype.startswith('image') %}
-                        <img src="{{ url_for('main.view_file', form_id=form.id, document_type='graduation_certificate') }}" 
-                             class="img-fluid" alt="Graduation Certificate">
-                    {% else %}
-                        <iframe src="{{ url_for('main.view_file', form_id=form.id, document_type='graduation_certificate') }}"
-                                style="width: 100%; height: 600px;" frameborder="0"></iframe>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type='graduation_certificate') }}" 
-                       class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Birth Certificate Modal -->
-    {% if form.birth_certificate_data %}
-    <div class="modal fade" id="fileModal{{ form.id }}_birth" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Birth Certificate</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    {% if form.birth_certificate_mimetype.startswith('image') %}
-                        <img src="{{ url_for('main.view_file', form_id=form.id, document_type='birth_certificate') }}" 
-                             class="img-fluid" alt="Birth Certificate">
-                    {% else %}
-                        <iframe src="{{ url_for('main.view_file', form_id=form.id, document_type='birth_certificate') }}"
-                                style="width: 100%; height: 600px;" frameborder="0"></iframe>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type='birth_certificate') }}" 
-                       class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Family Card Modal -->
-    {% if form.family_card_data %}
-    <div class="modal fade" id="fileModal{{ form.id }}_family" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Family Card</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    {% if form.family_card_mimetype.startswith('image') %}
-                        <img src="{{ url_for('main.view_file', form_id=form.id, document_type='family_card') }}" 
-                             class="img-fluid" alt="Family Card">
-                    {% else %}
-                        <iframe src="{{ url_for('main.view_file', form_id=form.id, document_type='family_card') }}"
-                                style="width: 100%; height: 600px;" frameborder="0"></iframe>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type='family_card') }}" 
-                       class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Report Card Modal -->
-    {% if form.report_card_data %}
-    <div class="modal fade" id="fileModal{{ form.id }}_report" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Report Card</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    {% if form.report_card_mimetype.startswith('image') %}
-                        <img src="{{ url_for('main.view_file', form_id=form.id, document_type='report_card') }}" 
-                             class="img-fluid" alt="Report Card">
-                    {% else %}
-                        <iframe src="{{ url_for('main.view_file', form_id=form.id, document_type='report_card') }}"
-                                style="width: 100%; height: 600px;" frameborder="0"></iframe>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type='report_card') }}" 
-                       class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Photo Modal -->
-    {% if form.photo_data %}
-    <div class="modal fade" id="fileModal{{ form.id }}_photo" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Photo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    {% if form.photo_mimetype.startswith('image') %}
-                        <img src="{{ url_for('main.view_file', form_id=form.id, document_type='photo') }}" 
-                             class="img-fluid" alt="Photo">
-                    {% else %}
-                        <iframe src="{{ url_for('main.view_file', form_id=form.id, document_type='photo') }}"
-                                style="width: 100%; height: 600px;" frameborder="0"></iframe>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type='photo') }}" 
-                       class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Track Document Modal -->
-    {% if form.track_document_data %}
-    <div class="modal fade" id="fileModal{{ form.id }}_track" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ form.registration_track|title }} Track Document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    {% if form.track_document_mimetype.startswith('image') %}
-                        <img src="{{ url_for('main.view_file', form_id=form.id, document_type='track_document') }}" 
-                             class="img-fluid" alt="{{ form.registration_track|title }} Track Document">
-                    {% else %}
-                        <iframe src="{{ url_for('main.view_file', form_id=form.id, document_type='track_document') }}"
-                                style="width: 100%; height: 600px;" frameborder="0"></iframe>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type='track_document') }}" 
-                       class="btn btn-primary">Download</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+<!-- Document viewing modals -->
+{% include 'modals/document_modals.html' %}
 {% endfor %}
 {% endblock %}

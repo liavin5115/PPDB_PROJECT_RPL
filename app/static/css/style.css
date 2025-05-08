@@ -51,7 +51,8 @@
 }
 
 .badge {
-    padding: 0.5em 1em;
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
 }
 
 .modal-body {
@@ -112,4 +113,120 @@ h4 {
 
 .document-links p {
     margin-bottom: 0.5rem;
+}
+
+/* Progress tracker styles */
+.progress {
+    height: 0.8rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    background-color: #007bff;
+    transition: width 0.6s ease;
+}
+
+.progress-bar.bg-danger {
+    background-color: #dc3545;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e9ecef;
+    z-index: 1;
+}
+
+.step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 8px;
+}
+
+.step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-circle {
+    background-color: #007bff;
+    color: white;
+}
+
+.step.completed .step-circle {
+    background-color: #28a745;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.step.active .step-label {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.step.completed .step-label {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Payment status badges */
+.payment-info {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.payment-proof {
+    max-height: 400px;
+    object-fit: contain;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+/* Progress indicator */
+.progress {
+    height: 0.8rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    background-color: #007bff;
+    transition: width 0.6s ease;
+}
+
+/* Payment form */
+.payment-form {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }

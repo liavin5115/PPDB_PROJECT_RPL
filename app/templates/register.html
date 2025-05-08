@@ -1,31 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Daftar{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h2 class="text-center mb-4">Register</h2>
+                <h2 class="text-center mb-4">Pendaftaran Akun</h2>
                 <form method="POST">
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
+                        <label for="username" class="form-label">Nama Pengguna</label>
                         {{ form.username(class="form-control") }}
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
+                        <label for="password" class="form-label">Kata Sandi</label>
                         {{ form.password(class="form-control") }}
                     </div>
                     <div class="mb-3">
-                        <label for="name" class="form-label">Full Name</label>
+                        <label for="name" class="form-label">Nama Lengkap</label>
                         {{ form.name(class="form-control") }}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                    <button type="submit" class="btn btn-primary w-100">Daftar</button>
                 </form>
                 <div class="text-center mt-3">
-                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                    <p>Sudah punya akun? <a href="{{ url_for('auth.login') }}">Masuk di sini</a></p>
                 </div>
             </div>
         </div>

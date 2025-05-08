@@ -26,4 +26,37 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => message.remove(), 300);
         }, 5000);
     });
+
+    // Handle track selection and document visibility
+    const trackSelect = document.getElementById('registration_track');
+    const trackDocs = document.getElementById('trackDocs');
+    const achievementDocs = document.getElementById('achievementDocs');
+    const affirmationDocs = document.getElementById('affirmationDocs');
+    const domicileDocs = document.getElementById('domicileDocs');
+    
+    if (trackSelect) {
+        trackSelect.addEventListener('change', function() {
+            // Hide all doc sections first
+            trackDocs.style.display = 'none';
+            achievementDocs.style.display = 'none';
+            affirmationDocs.style.display = 'none';
+            domicileDocs.style.display = 'none';
+            
+            // Show relevant section based on selection
+            if (this.value) {
+                trackDocs.style.display = 'block';
+                switch(this.value) {
+                    case 'achievement':
+                        achievementDocs.style.display = 'block';
+                        break;
+                    case 'affirmation':
+                        affirmationDocs.style.display = 'block';
+                        break;
+                    case 'domicile':
+                        domicileDocs.style.display = 'block';
+                        break;
+                }
+            }
+        });
+    }
 });

@@ -1,38 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Welcome{% endblock %}
+{% block title %}Selamat Datang{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8 text-center">
-        <h1 class="mb-4">Welcome to Student Admission System</h1>
+        <h1 class="mb-4">Selamat Datang di Sistem PPDB</h1>
         <div class="card">
             <div class="card-body">
-                <h2>Registration Steps</h2>
+                <h2>Langkah-langkah Pendaftaran</h2>
                 <div class="steps mt-4">
                     <div class="step">
-                        <h3>1. Create an Account</h3>
-                        <p>Register with your personal information to get started</p>
+                        <h3>1. Buat Akun</h3>
+                        <p>Daftar dengan informasi pribadi Anda untuk memulai</p>
                     </div>
                     <div class="step">
-                        <h3>2. Login to Your Account</h3>
-                        <p>Access your dashboard using your credentials</p>
+                        <h3>2. Masuk ke Akun</h3>
+                        <p>Akses dashboard menggunakan kredensial Anda</p>
                     </div>
                     <div class="step">
-                        <h3>3. Fill Admission Form</h3>
-                        <p>Complete the student admission form with required details</p>
+                        <h3>3. Isi Formulir Pendaftaran</h3>
+                        <p>Lengkapi formulir pendaftaran siswa dengan data yang diperlukan</p>
                     </div>
                     <div class="step">
-                        <h3>4. Wait for Approval</h3>
-                        <p>Track your application status on your dashboard</p>
+                        <h3>4. Tunggu Persetujuan</h3>
+                        <p>Pantau status pendaftaran Anda di dashboard</p>
                     </div>
                 </div>
                 <div class="mt-4">
                     {% if not current_user.is_authenticated %}
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary me-2">Register Now</a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Login</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary me-2">Daftar Sekarang</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Masuk</a>
                     {% else %}
-                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Ke Dashboard</a>
                     {% endif %}
                 </div>
             </div>

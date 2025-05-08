@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from .models import db
 import json
+from base64 import b64encode
 
 login_manager = LoginManager()
 migrate = Migrate()
@@ -28,6 +29,12 @@ def create_app():
             return json.loads(value)
         except:
             return {}
+
+    @app.template_filter('b64encode')
+    def b64encode_filter(data):
+        if data is None:
+            return ''
+        return b64encode(data).decode('utf-8')
 
     # Configure LoginManager
     login_manager.login_view = 'auth.login'

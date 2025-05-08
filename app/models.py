@@ -31,6 +31,17 @@ class Form(db.Model):
     registration_track = db.Column(db.String(20))
     track_document = db.Column(db.String(255))
     
+    # Track selection and documents
+    achievement_docs_data = db.Column(db.LargeBinary)
+    achievement_docs_filename = db.Column(db.String(255))
+    achievement_docs_mimetype = db.Column(db.String(100))
+    affirmation_docs_data = db.Column(db.LargeBinary)
+    affirmation_docs_filename = db.Column(db.String(255))
+    affirmation_docs_mimetype = db.Column(db.String(100))
+    domicile_docs_data = db.Column(db.LargeBinary)
+    domicile_docs_filename = db.Column(db.String(255))
+    domicile_docs_mimetype = db.Column(db.String(100))
+    
     # File metadata
     file_metadata = db.Column(db.Text)  # Store original filenames and upload times
 
@@ -59,6 +70,16 @@ class Form(db.Model):
     track_document_filename = db.Column(db.String(255))
     track_document_mimetype = db.Column(db.String(100))
 
+    # Payment related fields
+    payment_status = db.Column(db.String(20), default='unsubmitted')  # unsubmitted/submitted/verified
+    payment_proof_data = db.Column(db.LargeBinary)
+    payment_proof_filename = db.Column(db.String(255))
+    payment_proof_mimetype = db.Column(db.String(100))
+    payment_date = db.Column(db.DateTime)
+    payment_amount = db.Column(db.Float)
+    payment_bank = db.Column(db.String(100))
+    payment_account = db.Column(db.String(100))
+
     @property
     def parsed_form_data(self):
         """Return parsed JSON data"""
@@ -76,3 +97,31 @@ class Form(db.Model):
             return json.loads(self.file_metadata) if self.file_metadata else {}
         except:
             return {}
+
+    @property
+    def progress_status(self):
+        """Return current progress status"""
+        if self.status == 'rejected':
+            return 'rejected'
+        elif self.status == 'pending':
+            return 'pending'
+        elif self.status == 'accepted' and self.payment_status == 'unsubmitted':
+            return 'accepted'
+        elif self.payment_status == 'submitted':
+            return 'waiting_for_payment'
+        elif self.payment_status == 'verified':
+            return 'verified'
+        return 'pending'
+
+    @property
+    def progress_percentage(self):
+        """Return progress percentage"""
+        status_weights = {
+            'pending': 20,
+            'accepted': 40,
+            'waiting_for_payment': 60,
+            'paid': 80,
+            'verified': 100,
+            'rejected': 0
+        }
+        return status_weights.get(self.progress_status, 0)

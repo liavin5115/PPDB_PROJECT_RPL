@@ -27,7 +27,7 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('main.dashboard'))
-        flash('Invalid username or password', 'danger')
+        flash('Nama pengguna atau kata sandi tidak valid', 'danger')
     return render_template('login.html', form=form)
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -35,7 +35,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if User.query.filter_by(username=form.username.data).first():
-            flash('Username already exists', 'danger')
+            flash('Nama pengguna sudah digunakan', 'danger')
             return redirect(url_for('auth.register'))
         
         user = User(
@@ -46,7 +46,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash('Registration successful! Please login.', 'success')
+        flash('Pendaftaran berhasil! Silakan masuk.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 

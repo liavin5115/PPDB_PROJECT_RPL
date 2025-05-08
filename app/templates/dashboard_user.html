@@ -1,148 +1,208 @@
 {% extends "base.html" %}
 
-{% block title %}User Dashboard{% endblock %}
+{% block title %}Dashboard Siswa{% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h3>Profile Information</h3>
-                <p><strong>Name:</strong> {{ current_user.name }}</p>
-                <p><strong>Username:</strong> {{ current_user.username }}</p>
-            </div>
-        </div>
-        
+    <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <h3>Application Status</h3>
-                {% if form_status %}
-                    <div class="alert alert-{{ 'success' if form_status == 'accepted' else 'danger' if form_status == 'rejected' else 'info' }}">
-                        Status: {{ form_status.capitalize() }}
-                    </div>
+                <h3>Formulir Pendaftaran Siswa</h3>
+                {% if not form %}
+                    <form method="POST" action="{{ url_for('main.submit_form') }}" enctype="multipart/form-data" id="admission-form">
+                        {{ admission_form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="birth_date" class="form-label">Tanggal Lahir</label>
+                            {{ admission_form.birth_date(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Alamat</label>
+                            {{ admission_form.address(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Nomor Telepon</label>
+                            {{ admission_form.phone(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="previous_school" class="form-label">Sekolah Asal</label>
+                            {{ admission_form.previous_school(class="form-control") }}
+                        </div>
+                        
+                        <h4 class="mt-4">Dokumen Wajib</h4>
+                        
+                        <div class="mb-3">
+                            <label for="graduation_certificate" class="form-label">Ijazah/SKL</label>
+                            {{ admission_form.graduation_certificate(class="form-control") }}
+                            <small class="text-muted">Upload PDF atau gambar (jpg, png)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="birth_certificate" class="form-label">Akta Kelahiran</label>
+                            {{ admission_form.birth_certificate(class="form-control") }}
+                            <small class="text-muted">Upload PDF atau gambar (jpg, png)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="family_card" class="form-label">Kartu Keluarga</label>
+                            {{ admission_form.family_card(class="form-control") }}
+                            <small class="text-muted">Upload PDF atau gambar (jpg, png)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="report_card" class="form-label">Rapor</label>
+                            {{ admission_form.report_card(class="form-control") }}
+                            <small class="text-muted">Upload PDF atau gambar (jpg, png)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Pas Foto</label>
+                            {{ admission_form.photo(class="form-control") }}
+                            <small class="text-muted">Upload gambar saja (jpg, png)</small>
+                        </div>
+
+                        <h4 class="mt-4">Jalur Pendaftaran (Opsional)</h4>
+                        <div class="mb-3">
+                            <label class="form-label">Pilih Jalur</label>
+                            {{ admission_form.registration_track(class="form-control") }}
+                            <small class="text-muted">Pilih jalur jika Anda memenuhi syarat</small>
+                        </div>
+
+                        <div id="trackDocs" style="display: none;">
+                            <div id="achievementDocs" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label">Sertifikat Prestasi</label>
+                                    {{ admission_form.achievement_docs(class="form-control") }}
+                                    <small class="text-muted">Upload sertifikat prestasi akademik/non-akademik</small>
+                                </div>
+                            </div>
+                            
+                            <div id="affirmationDocs" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label">Dokumen Afirmasi</label>
+                                    {{ admission_form.affirmation_docs(class="form-control") }}
+                                    <small class="text-muted">Upload dokumen pendukung kelayakan</small>
+                                </div>
+                            </div>
+                            
+                            <div id="domicileDocs" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label">Surat Keterangan Domisili</label>
+                                    {{ admission_form.domicile_docs(class="form-control") }}
+                                    <small class="text-muted">Upload surat keterangan domisili dari RT/RW dan kelurahan</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Kirim Pendaftaran</button>
+                    </form>
                 {% else %}
-                    <p>No application submitted yet.</p>
+                    <div class="alert alert-info">
+                        Status pendaftaran Anda: {{ form.status|title }}
+                    </div>
+                    
+                    {% if form.status == 'accepted' and form.payment_status == 'unsubmitted' %}
+                        <div class="payment-section">
+                            <h4>Informasi Pembayaran</h4>
+                            <div class="alert alert-info">
+                                <h5>Rincian Biaya:</h5>
+                                <p><strong>Jumlah:</strong> Rp. 500,000</p>
+                                <p><strong>Bank:</strong> BCA</p>
+                                <p><strong>No. Rekening:</strong> 1234567890</p>
+                                <p><strong>Atas Nama:</strong> PPDB SEKOLAH</p>
+                            </div>
+                            
+                            <form method="POST" action="{{ url_for('main.submit_payment') }}" enctype="multipart/form-data">
+                                {{ payment_form.hidden_tag() }}
+                                <div class="mb-3">
+                                    <label class="form-label">Upload Bukti Pembayaran</label>
+                                    {{ payment_form.payment_proof(class="form-control") }}
+                                    <small class="text-muted">Upload bukti transfer/pembayaran (jpg, png, pdf)</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Kirim Bukti Pembayaran</button>
+                            </form>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
     </div>
-    
-    <div class="col-md-8">
-        <div class="card">
+
+    <div class="col-md-4">
+        <div class="card mb-4">
             <div class="card-body">
-                <h3>Student Admission Form</h3>
-                {% if not form_submitted %}
-                    <form method="POST" action="{{ url_for('main.submit_form') }}" enctype="multipart/form-data" id="admission-form">
-                        {{ form.hidden_tag() }}
+                <h3>Status Pendaftaran</h3>
+                {% if form %}
+                    <div class="progress-tracker mb-4">
+                        <div class="progress mb-3">
+                            <div class="progress-bar {{ 'bg-danger' if form.status == 'rejected' }}" 
+                                 role="progressbar" 
+                                 style="width: {{ form.progress_percentage }}%"
+                                 aria-valuenow="{{ form.progress_percentage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ form.progress_percentage }}%
+                            </div>
+                        </div>
                         
-                        <!-- Personal Information -->
-                        <h4 class="mb-3">Personal Information</h4>
-                        <div class="mb-3">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
+                        <div class="progress-steps">
+                            <div class="step {{ 'active' if form.status != 'rejected' }} {{ 'completed' if form.status != 'pending' }}">
+                                <div class="step-circle">1</div>
+                                <div class="step-label">Terkirim</div>
+                            </div>
+                            
+                            <div class="step {{ 'active' if form.status == 'accepted' }} {{ 'completed' if form.payment_status in ['submitted', 'verified'] }}">
+                                <div class="step-circle">2</div>
+                                <div class="step-label">Diterima</div>
+                            </div>
+                            
+                            <div class="step {{ 'active' if form.payment_status == 'submitted' }} {{ 'completed' if form.payment_status == 'verified' }}">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Pembayaran</div>
+                            </div>
+                            
+                            <div class="step {{ 'active' if form.payment_status == 'verified' }}">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Terverifikasi</div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Birth Date</label>
-                            {{ form.birth_date(class="form-control") }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Address</label>
-                            {{ form.address(class="form-control") }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Phone Number</label>
-                            {{ form.phone(class="form-control") }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Previous School</label>
-                            {{ form.previous_school(class="form-control") }}
-                        </div>
-
-                        <!-- Required Documents -->
-                        <h4 class="mb-3 mt-4">Required Documents</h4>
-                        <div class="mb-3">
-                            <label class="form-label">Graduation Certificate/SKL</label>
-                            {{ form.graduation_certificate(class="form-control") }}
-                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Birth Certificate</label>
-                            {{ form.birth_certificate(class="form-control") }}
-                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Family Card (KK)</label>
-                            {{ form.family_card(class="form-control") }}
-                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Report Card Summary</label>
-                            {{ form.report_card(class="form-control") }}
-                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Passport Photo (3x4 or 4x6)</label>
-                            {{ form.photo(class="form-control") }}
-                            <small class="text-muted">Accepted formats: JPG, PNG</small>
-                        </div>
-
-                        <!-- Registration Track -->
-                        <h4 class="mb-3 mt-4">Registration Track</h4>
-                        <div class="mb-3">
-                            <label class="form-label">Select Track</label>
-                            {{ form.registration_track(class="form-control") }}
-                        </div>
-                        <div class="mb-3" id="track-document-section" style="display: none;">
-                            <label class="form-label">Track-specific Document</label>
-                            {{ form.track_document(class="form-control") }}
-                            <small class="text-muted">Upload the required document for your selected track</small>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Submit Application</button>
-                    </form>
-                {% else %}
-                    <div class="alert alert-info">
-                        You have already submitted your application. Please wait for admin review.
                     </div>
+
+                    <div class="alert alert-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'info' }}">
+                        <strong>Status:</strong> 
+                        {% if form.status == 'pending' %}
+                            Menunggu Verifikasi
+                        {% elif form.status == 'accepted' %}
+                            Diterima
+                        {% elif form.status == 'rejected' %}
+                            Ditolak
+                        {% endif %}
+                        
+                        {% if form.payment_status and form.status == 'accepted' %}
+                            <br>
+                            <strong>Status Pembayaran:</strong>
+                            {% if form.payment_status == 'unsubmitted' %}
+                                Belum Dibayar
+                            {% elif form.payment_status == 'submitted' %}
+                                Menunggu Verifikasi
+                            {% elif form.payment_status == 'verified' %}
+                                Terverifikasi
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>Belum ada pendaftaran yang diajukan.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
-
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const trackSelect = document.querySelector('#registration_track');
-    const trackDocSection = document.querySelector('#track-document-section');
-    
-    if (trackSelect && trackDocSection) {
-        trackSelect.addEventListener('change', function() {
-            if (this.value) {
-                trackDocSection.style.display = 'block';
-                const label = trackDocSection.querySelector('label');
-                const small = trackDocSection.querySelector('small');
-                
-                switch(this.value) {
-                    case 'achievement':
-                        label.textContent = 'Achievement Certificates';
-                        small.textContent = 'Upload certificates of academic or non-academic achievements';
-                        break;
-                    case 'affirmation':
-                        label.textContent = 'Affirmation Documents';
-                        small.textContent = 'Upload supporting documents proving eligibility';
-                        break;
-                    case 'domicile':
-                        label.textContent = 'Residence Certificate';
-                        small.textContent = 'Upload residence certificate legalized by RT/RW and kelurahan';
-                        break;
-                }
-            } else {
-                trackDocSection.style.display = 'none';
-            }
-        });
-    }
-});
-</script>
-{% endblock %}
 {% endblock %}
