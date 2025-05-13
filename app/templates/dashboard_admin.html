@@ -146,24 +146,32 @@
                                     <span>Detail</span>
                                 </button>
                                 {% if form.status == 'pending' %}
-                                    <button type="button" class="btn btn-sm btn-outline-success" 
-                                            onclick="document.getElementById('acceptForm{{ form.id }}').submit();">
-                                        <i class="bi bi-check-lg"></i>
-                                        <span>Terima</span>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                            onclick="document.getElementById('rejectForm{{ form.id }}').submit();">
-                                        <i class="bi bi-x-lg"></i>
-                                        <span>Tolak</span>
-                                    </button>
+                                    <form id="acceptForm{{ form.id }}" method="POST" class="d-inline"
+                                          action="{{ url_for('main.update_status', form_id=form.id) }}">
+                                        <input type="hidden" name="status" value="accepted">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-check-lg"></i>
+                                            <span>Terima</span>
+                                        </button>
+                                    </form>
+                                    <form id="rejectForm{{ form.id }}" method="POST" class="d-inline"
+                                          action="{{ url_for('main.update_status', form_id=form.id) }}">
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-lg"></i>
+                                            <span>Tolak</span>
+                                        </button>
+                                    </form>
                                 {% endif %}
                                 
                                 {% if form.payment_status == 'submitted' %}
-                                    <button type="button" class="btn btn-sm btn-outline-primary"
-                                            onclick="document.getElementById('verifyPaymentForm{{ form.id }}').submit();">
-                                        <i class="bi bi-check-circle"></i>
-                                        <span>Verifikasi Pembayaran</span>
-                                    </button>
+                                    <form id="verifyPaymentForm{{ form.id }}" method="POST" class="d-inline"
+                                          action="{{ url_for('main.verify_payment', form_id=form.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-check-circle"></i>
+                                            <span>Verifikasi Pembayaran</span>
+                                        </button>
+                                    </form>
                                 {% endif %}
                             </div>
                         </td>
