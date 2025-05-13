@@ -2,12 +2,97 @@
 
 {% block title %}Dashboard Admin{% endblock %}
 
+{% block head %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+{% endblock %}
+
 {% block content %}
-<div class="card">
-    <div class="card-body">
-        <h2>Manajemen Pendaftaran Siswa</h2>
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card stats-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-sm bg-primary-subtle rounded">
+                            <i class="bi bi-people-fill fs-4 text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">Total Pendaftar</h6>
+                        <h4 class="mb-0">{{ forms|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card stats-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-sm bg-warning-subtle rounded">
+                            <i class="bi bi-clock-fill fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">Menunggu Verifikasi</h6>
+                        <h4 class="mb-0">{{ forms|selectattr('status', 'equalto', 'pending')|list|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card stats-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-sm bg-success-subtle rounded">
+                            <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">Diterima</h6>
+                        <h4 class="mb-0">{{ forms|selectattr('status', 'equalto', 'accepted')|list|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card stats-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-sm bg-danger-subtle rounded">
+                            <i class="bi bi-x-circle-fill fs-4 text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">Ditolak</h6>
+                        <h4 class="mb-0">{{ forms|selectattr('status', 'equalto', 'rejected')|list|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Card -->
+<div class="card table-container border-0 shadow-sm">
+    <div class="card-header py-3">
+        <h5 class="card-title mb-0">Manajemen Pendaftaran Siswa</h5>
+    </div>
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table id="applicationsTable" class="table table-hover mb-0">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -23,56 +108,64 @@
                     <tr>
                         <td>{{ form.id }}</td>
                         <td>{{ form.user.name }}</td>
-                        <td>{{ form.timestamp.strftime('%H:%M:%S') }}<br>
-                            {{ form.timestamp.strftime('%d-%m-%Y') }}</td>
+                        <td data-order="{{ form.timestamp.strftime('%Y%m%d%H%M%S') }}">
+                            {{ form.timestamp.strftime('%d-%m-%Y') }}<br>
+                            <small class="text-muted">{{ form.timestamp.strftime('%H:%M:%S') }}</small>
+                        </td>
                         <td>
-                            <span class="badge bg-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'info' }}">
-                                {% if form.status == 'pending' %}
-                                    Menunggu Verifikasi
-                                {% elif form.status == 'accepted' %}
-                                    Diterima
-                                {% elif form.status == 'rejected' %}
-                                    Ditolak
-                                {% endif %}
+                            <span class="badge bg-{{ 'success' if form.status == 'accepted' 
+                                               else 'danger' if form.status == 'rejected' 
+                                               else 'info' }}">
+                                <i class="bi bi-{{ 'check-circle-fill' if form.status == 'accepted' 
+                                               else 'x-circle-fill' if form.status == 'rejected'
+                                               else 'clock-fill' }}"></i>
+                                {{ 'Diterima' if form.status == 'accepted' 
+                                   else 'Ditolak' if form.status == 'rejected'
+                                   else 'Menunggu Verifikasi' }}
                             </span>
                         </td>
                         <td>
                             {% if form.status == 'accepted' %}
                                 <span class="badge bg-{{ 'success' if form.payment_status == 'verified' 
-                                                    else 'warning' if form.payment_status == 'submitted'
-                                                    else 'secondary' }}">
-                                    {% if form.payment_status == 'unsubmitted' %}
-                                        Belum Dibayar
-                                    {% elif form.payment_status == 'submitted' %}
-                                        Menunggu Verifikasi
-                                    {% elif form.payment_status == 'verified' %}
-                                        Terverifikasi
-                                    {% endif %}
+                                                  else 'warning' if form.payment_status == 'submitted'
+                                                  else 'secondary' }}">
+                                    <i class="bi bi-{{ 'check-circle-fill' if form.payment_status == 'verified'
+                                                  else 'hourglass-split' if form.payment_status == 'submitted'
+                                                  else 'wallet' }}"></i>
+                                    {{ 'Terverifikasi' if form.payment_status == 'verified'
+                                       else 'Menunggu Verifikasi' if form.payment_status == 'submitted'
+                                       else 'Belum Dibayar' }}
                                 </span>
                             {% endif %}
                         </td>
                         <td>
-                            {% if form.status == 'pending' %}
-                                <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline">
-                                    <input type="hidden" name="status" value="accepted">
-                                    <button type="submit" class="btn btn-success btn-sm">Terima</button>
-                                </form>
-                                <form method="POST" action="{{ url_for('main.update_status', form_id=form.id) }}" class="d-inline">
-                                    <input type="hidden" name="status" value="rejected">
-                                    <button type="submit" class="btn btn-danger btn-sm">Tolak</button>
-                                </form>
-                            {% endif %}
-                            
-                            {% if form.payment_status == 'submitted' %}
-                                <form method="POST" action="{{ url_for('main.verify_payment', form_id=form.id) }}" class="d-inline">
-                                    <button type="submit" class="btn btn-primary btn-sm">Verifikasi Pembayaran</button>
-                                </form>
-                            {% endif %}
-                            
-                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" 
-                                    data-bs-target="#detailModal{{ form.id }}">
-                                Lihat Detail
-                            </button>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
+                                        data-bs-target="#detailModal{{ form.id }}">
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Detail</span>
+                                </button>
+                                {% if form.status == 'pending' %}
+                                    <button type="button" class="btn btn-sm btn-outline-success" 
+                                            onclick="document.getElementById('acceptForm{{ form.id }}').submit();">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>Terima</span>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="document.getElementById('rejectForm{{ form.id }}').submit();">
+                                        <i class="bi bi-x-lg"></i>
+                                        <span>Tolak</span>
+                                    </button>
+                                {% endif %}
+                                
+                                {% if form.payment_status == 'submitted' %}
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                            onclick="document.getElementById('verifyPaymentForm{{ form.id }}').submit();">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span>Verifikasi Pembayaran</span>
+                                    </button>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -82,124 +175,48 @@
     </div>
 </div>
 
-{% for form in forms %}
-<div class="modal fade" id="detailModal{{ form.id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detail Pendaftaran</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="application-details">
-                    <p><strong>Nama Siswa:</strong> {{ form.user.name }}</p>
-                    {% if form.form_data %}
-                        {% set form_data = form.parsed_form_data %}
-                        <p><strong>Tanggal Lahir:</strong> {{ form_data.get('birth_date', '-') }}</p>
-                        <p><strong>Alamat:</strong> {{ form_data.get('address', '-') }}</p>
-                        <p><strong>Nomor Telepon:</strong> {{ form_data.get('phone', '-') }}</p>
-                        <p><strong>Sekolah Asal:</strong> {{ form_data.get('previous_school', '-') }}</p>
-                    {% endif %}
-                    <p><strong>Status:</strong> 
-                        {% if form.status == 'pending' %}
-                            Menunggu Verifikasi
-                        {% elif form.status == 'accepted' %}
-                            Diterima
-                        {% elif form.status == 'rejected' %}
-                            Ditolak
-                        {% endif %}
-                    </p>
-                    <p><strong>Tanggal Daftar:</strong> {{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
-                    
-                    <!-- Documents section -->
-                    <hr>
-                    <h6>Dokumen</h6>
-                    <div class="document-links">
-                        {% if form.graduation_certificate_data %}
-                        <p><strong>Ijazah/SKL:</strong> 
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_graduation_certificate">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.birth_certificate_data %}
-                        <p><strong>Akta Kelahiran:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_birth_certificate">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.family_card_data %}
-                        <p><strong>Kartu Keluarga:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_family_card">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.report_card_data %}
-                        <p><strong>Rapor:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_report_card">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.photo_data %}
-                        <p><strong>Pas Foto:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_photo">Lihat</button>
-                        </p>
-                        {% endif %}
-
-                        {% if form.registration_track %}
-                            <p><strong>Jalur Pendaftaran:</strong> 
-                                {% if form.registration_track == 'achievement' %}
-                                    Jalur Prestasi
-                                {% elif form.registration_track == 'affirmation' %}
-                                    Jalur Afirmasi
-                                {% elif form.registration_track == 'domicile' %}
-                                    Jalur Domisili
-                                {% endif %}
-                                {% if form[form.registration_track + '_docs_data'] %}
-                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                            data-bs-target="#fileModal{{ form.id }}_track">Lihat Dokumen</button>
-                                {% endif %}
-                            </p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Payment section -->
-                    {% if form.status == 'accepted' %}
-                    <hr>
-                    <h6>Informasi Pembayaran</h6>
-                    <p><strong>Status Pembayaran:</strong> 
-                        {% if form.payment_status == 'unsubmitted' %}
-                            Belum Dibayar
-                        {% elif form.payment_status == 'submitted' %}
-                            Menunggu Verifikasi
-                        {% elif form.payment_status == 'verified' %}
-                            Terverifikasi
-                        {% endif %}
-                    </p>
-                    {% if form.payment_date %}
-                        <p><strong>Tanggal Pembayaran:</strong> {{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</p>
-                    {% endif %}
-                    {% if form.payment_proof_data %}
-                        <p><strong>Bukti Pembayaran:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_payment">Lihat Bukti</button>
-                        </p>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Document viewing modals -->
 {% include 'modals/document_modals.html' %}
-{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#applicationsTable').DataTable({
+        responsive: true,
+        order: [[2, 'desc']], 
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+            search: "",  // Remove default search text
+            lengthMenu: "Tampilkan _MENU_ entri",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+            infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+            infoFiltered: "(disaring dari _MAX_ total entri)",
+            zeroRecords: "Tidak ada data yang cocok ditemukan",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Selanjutnya",
+                previous: "Sebelumnya"
+            }
+        },
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
+        dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+             "<'row'<'col-sm-12'tr>>" +
+             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        buttons: [
+            'copy', 'excel', 'pdf'
+        ]
+    });
+});
+</script>
 {% endblock %}

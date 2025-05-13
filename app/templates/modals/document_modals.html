@@ -1,7 +1,4 @@
-
-
 {% block content %}
-
 
 {% for form in forms %}
 <div class="modal fade" id="detailModal{{ form.id }}" tabindex="-1">
@@ -122,7 +119,7 @@
                     {% if form.payment_proof_data %}
                         <p><strong>Bukti Pembayaran:</strong>
                             <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_payment">Lihat Bukti</button>
+                                    data-bs-target="#fileModal{{ form.id }}_payment_proof">Lihat Bukti</button>
                         </p>
                     {% endif %}
                     {% endif %}
@@ -141,7 +138,8 @@
     ('birth_certificate', 'Akta Kelahiran'),
     ('family_card', 'Kartu Keluarga'),
     ('report_card', 'Rapor'),
-    ('photo', 'Pas Foto')
+    ('photo', 'Pas Foto'),
+    ('payment_proof', 'Bukti Pembayaran')
 ] %}
     {% if form[doc_type + '_data'] %}
     <div class="modal fade" id="fileModal{{ form.id }}_{{ doc_type }}" tabindex="-1">
