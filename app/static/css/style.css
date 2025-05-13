@@ -116,6 +116,7 @@ body {
 [data-bs-theme="dark"] .table {
     background-color: var(--bs-card-bg);
     color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
 }
 
 [data-bs-theme="dark"] .table th {
@@ -126,6 +127,7 @@ body {
 
 [data-bs-theme="dark"] .table td {
     border-color: var(--bs-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
 }
 
 [data-bs-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) {
@@ -136,9 +138,54 @@ body {
     background-color: var(--bs-table-bg);
 }
 
+[data-bs-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.075);
+}
+
 [data-bs-theme="dark"] .table-responsive {
     background-color: var(--bs-card-bg);
     border-radius: 10px;
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Table Container Dark Mode Styles */
+[data-bs-theme="dark"] .table-container {
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+}
+
+/* DataTable Wrapper Dark Mode */
+[data-bs-theme="dark"] .dataTables_wrapper {
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+}
+
+/* DataTable Controls Dark Mode */
+[data-bs-theme="dark"] .dataTables_length select,
+[data-bs-theme="dark"] .dataTables_filter input {
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+/* Pagination Dark Mode */
+[data-bs-theme="dark"] .dataTables_paginate .paginate_button {
+    background-color: var(--bs-dark) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .dataTables_paginate .paginate_button:hover {
+    background-color: var(--bs-tertiary-bg) !important;
+    border-color: var(--bs-primary) !important;
+    color: var(--bs-primary) !important;
+}
+
+[data-bs-theme="dark"] .dataTables_paginate .paginate_button.current {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: #fff !important;
 }
 
 .badge {
@@ -413,6 +460,41 @@ body {
     justify-content: center;
     border-radius: 50%;
     background: rgba(var(--bs-primary-rgb), 0.1);
+    margin-bottom: 1.5rem;
+}
+
+/* Dark mode overrides for program cards */
+[data-bs-theme="dark"] .card {
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .programs .card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="dark"] .programs .card:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+}
+
+[data-bs-theme="dark"] .programs .card-title {
+    color: var(--bs-light);
+}
+
+[data-bs-theme="dark"] .program-icon {
+    background: rgba(var(--bs-primary-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .program-icon i {
+    color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .card-text {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Contact Section */
