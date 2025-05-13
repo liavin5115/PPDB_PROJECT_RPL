@@ -1,0 +1,52 @@
+{% for form in forms %}
+    {% set documents = [
+        ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data, form.graduation_certificate_mimetype),
+        ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data, form.birth_certificate_mimetype),
+        ('family_card', 'Kartu Keluarga', form.family_card_data, form.family_card_mimetype),
+        ('report_card', 'Rapor', form.report_card_data, form.report_card_mimetype),
+        ('photo', 'Pas Foto', form.photo_data, form.photo_mimetype),
+        ('payment_proof', 'Bukti Pembayaran', form.payment_proof_data, form.payment_proof_mimetype),
+        ('track_document', 'Dokumen Jalur', form.track_document_data, form.track_document_mimetype)
+    ] %}
+
+    {% for doc_id, doc_name, doc_data, doc_mime in documents %}
+        {% if doc_data %}
+        <div class="modal fade" id="fileModal{{ form.id }}_{{ doc_id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0">
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title">
+                            <i class="bi bi-file-earmark-text me-2"></i>{{ doc_name }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        {% if 'image' in doc_mime %}
+                            <img src="data:{{ doc_mime }};base64,{{ doc_data|b64encode }}" 
+                                class="img-fluid w-100" 
+                                alt="{{ doc_name }}">
+                        {% elif 'pdf' in doc_mime %}
+                            <embed src="data:{{ doc_mime }};base64,{{ doc_data|b64encode }}"
+                                type="application/pdf"
+                                width="100%"
+                                height="600px">
+                        {% else %}
+                            <div class="alert alert-warning m-3">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Format file tidak didukung untuk pratinjau
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer border-top">
+                        <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_id) }}" 
+                           class="btn btn-primary">
+                            <i class="bi bi-download me-1"></i>Unduh
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endfor %}

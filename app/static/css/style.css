@@ -1152,3 +1152,62 @@ body {
         white-space: normal;
     }
 }
+
+/* Detail Modal Styles */
+.detail-section {
+    position: relative;
+}
+
+.detail-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--bs-primary);
+    margin-bottom: 1rem;
+}
+
+.detail-item {
+    margin-bottom: 0.5rem;
+}
+
+.detail-item label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.doc-item {
+    background-color: var(--bs-body-bg);
+    transition: all 0.3s ease;
+}
+
+.doc-item:hover {
+    border-color: var(--bs-primary) !important;
+}
+
+/* Dark mode overrides */
+[data-bs-theme="dark"] .modal-content {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .modal-header {
+    border-bottom-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .modal-footer {
+    border-top-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .doc-item,
+[data-bs-theme="dark"] .track-info,
+[data-bs-theme="dark"] .payment-info {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color) !important;
+}
+
+[data-bs-theme="dark"] .detail-item label {
+    color: var(--bs-text-muted);
+}
+
+[data-bs-theme="dark"] .detail-item p {
+    color: var(--bs-body-color);
+}

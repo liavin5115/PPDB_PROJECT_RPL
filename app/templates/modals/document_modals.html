@@ -3,215 +3,210 @@
 {% for form in forms %}
 <div class="modal fade" id="detailModal{{ form.id }}" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detail Pendaftaran</h5>
+        <div class="modal-content border-0">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title d-flex align-items-center">
+                    <i class="bi bi-person-vcard me-2"></i>Detail Pendaftaran
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="application-details">
-                    <p><strong>Nama Siswa:</strong> {{ form.user.name }}</p>
-                    {% if form.form_data %}
-                        {% set form_data = form.parsed_form_data %}
-                        <p><strong>Tanggal Lahir:</strong> {{ form_data.get('birth_date', '-') }}</p>
-                        <p><strong>Alamat:</strong> {{ form_data.get('address', '-') }}</p>
-                        <p><strong>Nomor Telepon:</strong> {{ form_data.get('phone', '-') }}</p>
-                        <p><strong>Sekolah Asal:</strong> {{ form_data.get('previous_school', '-') }}</p>
-                    {% endif %}
-                    <p><strong>Status:</strong> 
-                        {% if form.status == 'pending' %}
-                            Menunggu Verifikasi
-                        {% elif form.status == 'accepted' %}
-                            Diterima
-                        {% elif form.status == 'rejected' %}
-                            Ditolak
-                        {% endif %}
-                    </p>
-                    <p><strong>Tanggal Daftar:</strong> {{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
-                    
-                    <!-- Documents section -->
-                    <hr>
-                    <h6>Dokumen</h6>
-                    <div class="document-links">
-                        {% if form.graduation_certificate_data %}
-                        <p><strong>Ijazah/SKL:</strong> 
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_graduation_certificate">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.birth_certificate_data %}
-                        <p><strong>Akta Kelahiran:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_birth_certificate">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.family_card_data %}
-                        <p><strong>Kartu Keluarga:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_family_card">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.report_card_data %}
-                        <p><strong>Rapor:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_report_card">Lihat</button>
-                        </p>
-                        {% endif %}
-                        
-                        {% if form.photo_data %}
-                        <p><strong>Pas Foto:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_photo">Lihat</button>
-                        </p>
-                        {% endif %}
-
-                        {% if form.registration_track %}
-                        <p>
-                            <strong>Jalur Pendaftaran:</strong> 
-                            {% if form.registration_track == 'achievement' %}
-                                Jalur Prestasi
-                                {% if form.achievement_docs_data %}
-                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                            data-bs-target="#fileModal{{ form.id }}_achievement_docs">
-                                        Lihat Dokumen
-                                    </button>
-                                {% endif %}
-                            {% elif form.registration_track == 'affirmation' %}
-                                Jalur Afirmasi
-                                {% if form.affirmation_docs_data %}
-                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                            data-bs-target="#fileModal{{ form.id }}_affirmation_docs">
-                                        Lihat Dokumen
-                                    </button>
-                                {% endif %}
-                            {% elif form.registration_track == 'domicile' %}
-                                Jalur Domisili
-                                {% if form.domicile_docs_data %}
-                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                            data-bs-target="#fileModal{{ form.id }}_domicile_docs">
-                                        Lihat Dokumen
-                                    </button>
-                                {% endif %}
-                            {% endif %}
-                        </p>
+            <div class="modal-body p-4">
+                <!-- Personal Info Section -->
+                <div class="detail-section mb-4">
+                    <h6 class="detail-title mb-3">
+                        <i class="bi bi-person-fill text-primary me-2"></i>Informasi Pribadi
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small">Nama Siswa</label>
+                                <p class="mb-0">{{ form.user.name }}</p>
+                            </div>
+                        </div>
+                        {% if form.form_data %}
+                            {% set form_data = form.parsed_form_data %}
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="text-muted small">Tanggal Lahir</label>
+                                    <p class="mb-0">{{ form_data.get('birth_date', '-') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="text-muted small">Nomor Telepon</label>
+                                    <p class="mb-0">{{ form_data.get('phone', '-') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="text-muted small">Sekolah Asal</label>
+                                    <p class="mb-0">{{ form_data.get('previous_school', '-') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <label class="text-muted small">Alamat</label>
+                                    <p class="mb-0">{{ form_data.get('address', '-') }}</p>
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
-
-                    <!-- Payment section -->
-                    {% if form.status == 'accepted' %}
-                    <hr>
-                    <h6>Informasi Pembayaran</h6>
-                    <p><strong>Status Pembayaran:</strong> 
-                        {% if form.payment_status == 'unsubmitted' %}
-                            Belum Dibayar
-                        {% elif form.payment_status == 'submitted' %}
-                            Menunggu Verifikasi
-                        {% elif form.payment_status == 'verified' %}
-                            Terverifikasi
-                        {% endif %}
-                    </p>
-                    {% if form.payment_date %}
-                        <p><strong>Tanggal Pembayaran:</strong> {{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</p>
-                    {% endif %}
-                    {% if form.payment_proof_data %}
-                        <p><strong>Bukti Pembayaran:</strong>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" 
-                                    data-bs-target="#fileModal{{ form.id }}_payment_proof">Lihat Bukti</button>
-                        </p>
-                    {% endif %}
-                    {% endif %}
                 </div>
+
+                <!-- Application Status Section -->
+                <div class="detail-section mb-4">
+                    <h6 class="detail-title mb-3">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i>Status Aplikasi
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small">Status Pendaftaran</label>
+                                <div class="mt-1">
+                                    <span class="badge bg-{{ 'success' if form.status == 'accepted' 
+                                                       else 'danger' if form.status == 'rejected' 
+                                                       else 'info' }}">
+                                        <i class="bi bi-{{ 'check-circle-fill' if form.status == 'accepted' 
+                                                       else 'x-circle-fill' if form.status == 'rejected'
+                                                       else 'clock-fill' }} me-1"></i>
+                                        {{ 'Diterima' if form.status == 'accepted' 
+                                           else 'Ditolak' if form.status == 'rejected'
+                                           else 'Menunggu Verifikasi' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small">Tanggal Pendaftaran</label>
+                                <p class="mb-0">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Section -->
+                <div class="detail-section mb-4">
+                    <h6 class="detail-title mb-3">
+                        <i class="bi bi-file-earmark-text-fill text-primary me-2"></i>Dokumen
+                    </h6>
+                    <div class="row g-3">
+                        {% set documents = [
+                            ('graduation_certificate', 'Ijazah/SKL', 'bi-file-earmark-pdf'),
+                            ('birth_certificate', 'Akta Kelahiran', 'bi-file-earmark-text'),
+                            ('family_card', 'Kartu Keluarga', 'bi-file-earmark'),
+                            ('report_card', 'Rapor', 'bi-file-earmark-spreadsheet'),
+                            ('photo', 'Pas Foto', 'bi-image')
+                        ] %}
+                        
+                        {% for doc_id, doc_name, icon in documents %}
+                            {% if form[doc_id + '_data'] %}
+                            <div class="col-md-6">
+                                <div class="doc-item p-3 rounded border">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi {{ icon }} text-primary me-2"></i>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-medium">{{ doc_name }}</div>
+                                            <div class="small text-muted">{{ form[doc_id + '_filename'] }}</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_{{ doc_id }}">
+                                            <i class="bi bi-eye-fill me-1"></i>Lihat
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Registration Track Section -->
+                {% if form.registration_track %}
+                <div class="detail-section mb-4">
+                    <h6 class="detail-title mb-3">
+                        <i class="bi bi-signpost-split-fill text-primary me-2"></i>Jalur Pendaftaran
+                    </h6>
+                    <div class="track-info p-3 rounded border">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="fw-medium">
+                                    {% if form.registration_track == 'achievement' %}
+                                        <i class="bi bi-trophy-fill text-warning me-2"></i>Jalur Prestasi
+                                    {% elif form.registration_track == 'affirmation' %}
+                                        <i class="bi bi-heart-fill text-danger me-2"></i>Jalur Afirmasi
+                                    {% elif form.registration_track == 'domicile' %}
+                                        <i class="bi bi-geo-fill text-success me-2"></i>Jalur Zonasi
+                                    {% endif %}
+                                </div>
+                                {% if form.track_document_data %}
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_track_document">
+                                        <i class="bi bi-file-earmark-text me-1"></i>Lihat Dokumen Pendukung
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Payment Section -->
+                {% if form.status == 'accepted' %}
+                <div class="detail-section">
+                    <h6 class="detail-title mb-3">
+                        <i class="bi bi-credit-card-fill text-primary me-2"></i>Informasi Pembayaran
+                    </h6>
+                    <div class="payment-info p-3 rounded border">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="text-muted small">Status Pembayaran</label>
+                                    <div class="mt-1">
+                                        <span class="badge bg-{{ 'success' if form.payment_status == 'verified' 
+                                                           else 'warning' if form.payment_status == 'submitted'
+                                                           else 'secondary' }}">
+                                            <i class="bi bi-{{ 'check-circle-fill' if form.payment_status == 'verified'
+                                                           else 'hourglass-split' if form.payment_status == 'submitted'
+                                                           else 'wallet' }} me-1"></i>
+                                            {{ 'Terverifikasi' if form.payment_status == 'verified'
+                                               else 'Menunggu Verifikasi' if form.payment_status == 'submitted'
+                                               else 'Belum Dibayar' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if form.payment_date %}
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="text-muted small">Tanggal Pembayaran</label>
+                                    <p class="mb-0">{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if form.payment_proof_data %}
+                            <div class="col-12">
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_payment_proof">
+                                    <i class="bi bi-file-earmark-text me-1"></i>Lihat Bukti Pembayaran
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-top">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Document viewing modals -->
-{% for doc_type, title in [
-    ('graduation_certificate', 'Ijazah/SKL'),
-    ('birth_certificate', 'Akta Kelahiran'),
-    ('family_card', 'Kartu Keluarga'),
-    ('report_card', 'Rapor'),
-    ('photo', 'Pas Foto'),
-    ('payment_proof', 'Bukti Pembayaran')
-] %}
-    {% if form[doc_type + '_data'] %}
-    <div class="modal fade" id="fileModal{{ form.id }}_{{ doc_type }}" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    {% if form[doc_type + '_mimetype'].startswith('image') %}
-                        <img src="data:{{ form[doc_type + '_mimetype'] }};base64,{{ form[doc_type + '_data']|b64encode }}" 
-                             class="img-fluid" alt="{{ title }}">
-                    {% else %}
-                        <object data="data:{{ form[doc_type + '_mimetype'] }};base64,{{ form[doc_type + '_data']|b64encode }}"
-                                type="{{ form[doc_type + '_mimetype'] }}"
-                                style="width: 100%; height: 600px;">
-                            <p>Tidak dapat menampilkan file. <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_type) }}">Unduh disini</a></p>
-                        </object>
-                    {% endif %}
-                </div>
-                <div class="modal-footer">
-                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_type) }}" 
-                       class="btn btn-primary">Unduh</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-{% endfor %}
-
-<!-- Track Document Modals -->
-{% if form.registration_track %}
-    {% set track_docs = {
-        'achievement': ['achievement_docs', 'Dokumen Prestasi'],
-        'affirmation': ['affirmation_docs', 'Dokumen Afirmasi'],
-        'domicile': ['domicile_docs', 'Dokumen Domisili']
-    } %}
-    
-    {% if track_docs[form.registration_track] %}
-        {% set doc_type, title = track_docs[form.registration_track] %}
-        {% if form[doc_type + '_data'] %}
-        <div class="modal fade" id="fileModal{{ form.id }}_{{ doc_type }}" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ title }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        {% if form[doc_type + '_mimetype'].startswith('image') %}
-                            <img src="data:{{ form[doc_type + '_mimetype'] }};base64,{{ form[doc_type + '_data']|b64encode }}" 
-                                 class="img-fluid" alt="{{ title }}">
-                        {% else %}
-                            <object data="data:{{ form[doc_type + '_mimetype'] }};base64,{{ form[doc_type + '_data']|b64encode }}"
-                                    type="{{ form[doc_type + '_mimetype'] }}"
-                                    style="width: 100%; height: 600px;">
-                                <p>Tidak dapat menampilkan file. <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_type) }}">Unduh disini</a></p>
-                            </object>
-                        {% endif %}
-                    </div>
-                    <div class="modal-footer">
-                        <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_type) }}" 
-                           class="btn btn-primary">Unduh</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    {% endif %}
-{% endif %}
+<!-- Document viewing modals remain unchanged -->
+{% include 'modals/file_viewer_modals.html' %}
 {% endfor %}
 {% endblock %}
