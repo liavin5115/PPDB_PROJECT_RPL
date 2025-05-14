@@ -16,7 +16,9 @@ class User(UserMixin, db.Model):
 class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    form_data = db.Column(db.Text, nullable=False)
+    gender = db.Column(db.String(10), nullable=False, default='Laki-laki')  # Add default
+    religion = db.Column(db.String(20), nullable=False, default='Islam')  # Add default
+    form_data = db.Column(db.Text, nullable=False, default='{}')  # Add default
     status = db.Column(db.String(20), default='pending')
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -42,10 +44,10 @@ class Form(db.Model):
     domicile_docs_filename = db.Column(db.String(255))
     domicile_docs_mimetype = db.Column(db.String(100))
     
-    # File metadata
-    file_metadata = db.Column(db.Text)  # Store original filenames and upload times
+    # File metadata 
+    file_metadata = db.Column(db.Text, default='{}')  # Add default
 
-    # Document storage fields (binary data)
+    # Document storage fields
     graduation_certificate_data = db.Column(db.LargeBinary)
     graduation_certificate_filename = db.Column(db.String(255))
     graduation_certificate_mimetype = db.Column(db.String(100))
@@ -71,7 +73,7 @@ class Form(db.Model):
     track_document_mimetype = db.Column(db.String(100))
 
     # Payment related fields
-    payment_status = db.Column(db.String(20), default='unsubmitted')  # unsubmitted/submitted/verified
+    payment_status = db.Column(db.String(20), default='unsubmitted')
     payment_proof_data = db.Column(db.LargeBinary)
     payment_proof_filename = db.Column(db.String(255))
     payment_proof_mimetype = db.Column(db.String(100))
@@ -84,9 +86,7 @@ class Form(db.Model):
     def parsed_form_data(self):
         """Return parsed JSON data"""
         try:
-            if isinstance(self.form_data, str):
-                return json.loads(self.form_data)
-            return self.form_data
+            return json.loads(self.form_data)
         except:
             return {}
 
@@ -94,7 +94,7 @@ class Form(db.Model):
     def parsed_file_metadata(self):
         """Return parsed file metadata as JSON"""
         try:
-            return json.loads(self.file_metadata) if self.file_metadata else {}
+            return json.loads(self.file_metadata)
         except:
             return {}
 
@@ -106,9 +106,9 @@ class Form(db.Model):
         elif self.status == 'pending':
             return 'pending'
         elif self.status == 'accepted' and self.payment_status == 'unsubmitted':
-            return 'accepted'
-        elif self.payment_status == 'submitted':
             return 'waiting_for_payment'
+        elif self.payment_status == 'submitted':
+            return 'paid'
         elif self.payment_status == 'verified':
             return 'verified'
         return 'pending'

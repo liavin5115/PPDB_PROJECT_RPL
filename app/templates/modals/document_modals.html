@@ -23,6 +23,18 @@
                                 <p class="mb-0">{{ form.user.name }}</p>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small">Jenis Kelamin</label>
+                                <p class="mb-0">{{ form.gender }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small">Agama</label>
+                                <p class="mb-0">{{ form.religion }}</p>
+                            </div>
+                        </div>
                         {% if form.form_data %}
                             {% set form_data = form.parsed_form_data %}
                             <div class="col-md-6">
@@ -90,36 +102,53 @@
                     <h6 class="detail-title mb-3">
                         <i class="bi bi-file-earmark-text-fill text-primary me-2"></i>Dokumen
                     </h6>
-                    <div class="row g-3">
+                    <div class="documents-grid">
                         {% set documents = [
-                            ('graduation_certificate', 'Ijazah/SKL', 'bi-file-earmark-pdf'),
-                            ('birth_certificate', 'Akta Kelahiran', 'bi-file-earmark-text'),
-                            ('family_card', 'Kartu Keluarga', 'bi-file-earmark'),
-                            ('report_card', 'Rapor', 'bi-file-earmark-spreadsheet'),
-                            ('photo', 'Pas Foto', 'bi-image')
+                            ('graduation_certificate', 'Ijazah/SKL', 'bi-file-earmark-pdf', 'File Ijazah atau Surat Keterangan Lulus'),
+                            ('birth_certificate', 'Akta Kelahiran', 'bi-file-earmark-text', 'File Akta Kelahiran'),
+                            ('family_card', 'Kartu Keluarga', 'bi-file-earmark', 'File Kartu Keluarga'),
+                            ('report_card', 'Rapor', 'bi-file-earmark-spreadsheet', 'File Rapor'),
+                            ('photo', 'Pas Foto', 'bi-image', 'File Pas Foto')
                         ] %}
                         
-                        {% for doc_id, doc_name, icon in documents %}
+                        {% for doc_id, doc_name, icon, tooltip in documents %}
                             {% if form[doc_id + '_data'] %}
-                            <div class="col-md-6">
-                                <div class="doc-item p-3 rounded border">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi {{ icon }} text-primary me-2"></i>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-medium">{{ doc_name }}</div>
-                                            <div class="small text-muted">{{ form[doc_id + '_filename'] }}</div>
-                                        </div>
-                                        <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                data-bs-toggle="modal" data-bs-target="#fileModal{{ form.id }}_{{ doc_id }}">
-                                            <i class="bi bi-eye-fill me-1"></i>Lihat
-                                        </button>
+                            <div class="doc-item" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ tooltip }}">
+                                <div class="doc-content">
+                                    <div class="doc-icon">
+                                        <i class="bi {{ icon }}"></i>
                                     </div>
+                                    <div class="doc-info">
+                                        <h6 class="doc-title">{{ doc_name }}</h6>
+                                        <p class="doc-filename" title="{{ form[doc_id + '_filename'] }}">
+                                            {{ form[doc_id + '_filename'] }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="doc-actions">
+                                    <button type="button" class="btn btn-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#fileModal{{ form.id }}_{{ doc_id }}"
+                                            aria-label="Lihat {{ doc_name }}">
+                                        <i class="bi bi-eye-fill"></i>
+                                        <span>Lihat</span>
+                                    </button>
                                 </div>
                             </div>
                             {% endif %}
                         {% endfor %}
                     </div>
                 </div>
+
+                <!-- Initialize tooltips -->
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    });
+                });
+                </script>
 
                 <!-- Registration Track Section -->
                 {% if form.registration_track %}

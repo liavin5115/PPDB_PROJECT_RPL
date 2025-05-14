@@ -16,6 +16,21 @@
                             <label class="form-label">Nama Lengkap</label>
                             <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Jenis Kelamin</label>
+                                    {{ admission_form.gender(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="religion" class="form-label">Agama</label>
+                                    {{ admission_form.religion(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="mb-3">
                             <label for="birth_date" class="form-label">Tanggal Lahir</label>
@@ -138,6 +153,46 @@
                                         <p><strong>Sekolah Asal:</strong><br>{{ form.parsed_form_data.previous_school }}</p>
                                         <p><strong>Tanggal Pendaftaran:</strong><br>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Informasi Pribadi</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted">Nama Lengkap</label>
+                                        <p class="mb-0">{{ current_user.name }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted">Jenis Kelamin</label>
+                                        <p class="mb-0">{{ form.gender }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted">Agama</label>
+                                        <p class="mb-0">{{ form.religion }}</p>
+                                    </div>
+                                    {% if form.parsed_form_data %}
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted">Tanggal Lahir</label>
+                                        <p class="mb-0">{{ form.parsed_form_data.get('birth_date', '-') }}</p>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="text-muted">Alamat</label>
+                                        <p class="mb-0">{{ form.parsed_form_data.get('address', '-') }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted">Nomor Telepon</label>
+                                        <p class="mb-0">{{ form.parsed_form_data.get('phone', '-') }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted">Sekolah Asal</label>
+                                        <p class="mb-0">{{ form.parsed_form_data.get('previous_school', '-') }}</p>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

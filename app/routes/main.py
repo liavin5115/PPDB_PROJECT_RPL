@@ -38,6 +38,26 @@ class AdmissionForm(FlaskForm):
     phone = StringField('Phone Number', validators=[DataRequired()])
     previous_school = StringField('Previous School', validators=[DataRequired()])
     
+    # Add these fields after basic fields
+    gender = SelectField('Jenis Kelamin', 
+        choices=[
+            ('', 'Pilih Jenis Kelamin'),
+            ('Laki-laki', 'Laki-laki'),
+            ('Perempuan', 'Perempuan')
+        ], validators=[DataRequired()])
+    
+    religion = SelectField('Agama',
+        choices=[
+            ('', 'Pilih Agama'),
+            ('Islam', 'Islam'),
+            ('Kristen', 'Kristen'),
+            ('Katolik', 'Katolik'),
+            ('Hindu', 'Hindu'),
+            ('Buddha', 'Buddha'),
+            ('Konghucu', 'Konghucu'),
+            ('Lainnya', 'Lainnya')
+        ], validators=[DataRequired()])
+    
     # Required documents
     graduation_certificate = FileField('Graduation Certificate', 
         validators=[FileRequired(), FileAllowed(['pdf', 'jpg', 'png'])])
