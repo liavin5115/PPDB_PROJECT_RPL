@@ -38,7 +38,6 @@ class AdmissionForm(FlaskForm):
     phone = StringField('Phone Number', validators=[DataRequired()])
     previous_school = StringField('Previous School', validators=[DataRequired()])
     
-    # Add these fields after basic fields
     gender = SelectField('Jenis Kelamin', 
         choices=[
             ('', 'Pilih Jenis Kelamin'),
@@ -58,28 +57,28 @@ class AdmissionForm(FlaskForm):
             ('Lainnya', 'Lainnya')
         ], validators=[DataRequired()])
     
-    # Required documents
+    # Make documents optional by using Optional() validator
     graduation_certificate = FileField('Graduation Certificate', 
-        validators=[FileRequired(), FileAllowed(['pdf', 'jpg', 'png'])])
+        validators=[Optional(), FileAllowed(['pdf', 'jpg', 'png'])])
     birth_certificate = FileField('Birth Certificate',
-        validators=[FileRequired(), FileAllowed(['pdf', 'jpg', 'png'])])
+        validators=[Optional(), FileAllowed(['pdf', 'jpg', 'png'])])
     family_card = FileField('Family Card',
-        validators=[FileRequired(), FileAllowed(['pdf', 'jpg', 'png'])])
+        validators=[Optional(), FileAllowed(['pdf', 'jpg', 'png'])])
     report_card = FileField('Report Card',
-        validators=[FileRequired(), FileAllowed(['pdf', 'jpg', 'png'])])
+        validators=[Optional(), FileAllowed(['pdf', 'jpg', 'png'])])
     photo = FileField('Photo',
-        validators=[FileRequired(), FileAllowed(['jpg', 'png'])])
+        validators=[Optional(), FileAllowed(['jpg', 'png'])])
     
-    # Registration track fields
+    # Registration track fields remain optional
     registration_track = SelectField('Registration Track',
         choices=[
             ('', 'Select Track'),
             ('achievement', 'Achievement Path'),
             ('affirmation', 'Affirmation Path'),
             ('domicile', 'Domicile Path')
-        ], validators=[DataRequired()])
+        ], validators=[Optional()])
         
-    # Track-specific documents with Optional validator
+    # Track-specific documents remain optional
     achievement_docs = FileField('Achievement Documents',
         validators=[Optional(), FileAllowed(['pdf', 'jpg', 'png'])])
     affirmation_docs = FileField('Affirmation Documents',
@@ -99,22 +98,52 @@ def index():
 @login_required
 def dashboard():
     if current_user.role == 'admin':
-        # Admin dashboard
         forms = Form.query.all()
         return render_template('dashboard_admin.html', forms=forms)
-    else:
-        # User dashboard
-        user_form = Form.query.filter_by(user_id=current_user.id).first()
-        admission_form = AdmissionForm()  # Create form instance for new submissions
-        payment_form = PaymentForm()  # Create payment form instance
+    
+    user_form = Form.query.filter_by(user_id=current_user.id).first()
+    
+    if user_form:
+        profile_completion = user_form.calculate_profile_completion()
+        doc_completion = user_form.calculate_document_completion()
+        status, progress_class = user_form.completion_status
         
-        return render_template(
-            'dashboard_user.html',
-            form=user_form,  # Database record
-            admission_form=admission_form,  # Form for submission
-            payment_form=payment_form,  # Payment form
-            form_status=user_form.status if user_form else None
-        )
+        required_documents = [
+            {'name': 'Graduation Certificate', 'uploaded': bool(user_form.graduation_certificate_data)},
+            {'name': 'Birth Certificate', 'uploaded': bool(user_form.birth_certificate_data)},
+            {'name': 'Family Card', 'uploaded': bool(user_form.family_card_data)},
+            {'name': 'Report Card', 'uploaded': bool(user_form.report_card_data)},
+            {'name': 'Photo', 'uploaded': bool(user_form.photo_data)}
+        ]
+    else:
+        profile_completion = 0
+        doc_completion = 0
+        status = 'incomplete'
+        progress_class = 'danger'
+        required_documents = [
+            {'name': doc, 'uploaded': False} 
+            for doc in ['Graduation Certificate', 'Birth Certificate', 'Family Card', 'Report Card', 'Photo']
+        ]
+
+    return render_template(
+        'dashboard_user.html',
+        form=user_form,
+        admission_form=AdmissionForm(),
+        payment_form=PaymentForm(),
+        completion_percentage=profile_completion,
+        doc_completion=doc_completion,
+        progress_class=progress_class,
+        status_message=get_status_message(status),
+        required_documents=required_documents
+    )
+
+def get_status_message(status):
+    messages = {
+        'complete': 'Your profile is complete! All documents have been uploaded.',
+        'in_progress': 'Keep going! Complete your profile and upload remaining documents.',
+        'incomplete': 'Please complete your profile and upload required documents.'
+    }
+    return messages.get(status, 'Please complete your registration.')
 
 @main.route('/submit-form', methods=['POST'])
 @login_required
@@ -125,62 +154,64 @@ def submit_form():
     form = AdmissionForm()
     if form.validate_on_submit():
         try:
-            # Check for existing submission
-            if Form.query.filter_by(user_id=current_user.id).first():
-                flash('You have already submitted an application.', 'warning')
-                return redirect(url_for('main.dashboard'))
+            # Create new form or get existing
+            user_form = Form.query.filter_by(user_id=current_user.id).first()
+            if not user_form:
+                user_form = Form(user_id=current_user.id)
+                db.session.add(user_form)
             
-            # Create form data dictionary
+            # Update basic info
             form_data = {
                 'birth_date': form.birth_date.data.strftime('%Y-%m-%d'),
                 'address': form.address.data,
                 'phone': form.phone.data,
-                'previous_school': form.previous_school.data,
-                'registration_track': form.registration_track.data
+                'previous_school': form.previous_school.data
             }
             
-            # Handle required documents
-            files_data = {}
-            for field in ['graduation_certificate', 'birth_certificate', 'family_card', 'report_card', 'photo']:
-                file = getattr(form, field).data
-                if file:
-                    files_data[f'{field}_data'] = file.read()
-                    files_data[f'{field}_filename'] = secure_filename(file.filename)
-                    files_data[f'{field}_mimetype'] = file.mimetype
+            user_form.gender = form.gender.data
+            user_form.religion = form.religion.data
+            user_form.form_data = json.dumps(form_data)
             
-            # Handle track-specific documents
-            track_field_map = {
-                'achievement': 'achievement_docs',
-                'affirmation': 'affirmation_docs',
-                'domicile': 'domicile_docs'
+            # Handle optional document uploads
+            documents = {
+                'graduation_certificate': form.graduation_certificate,
+                'birth_certificate': form.birth_certificate,
+                'family_card': form.family_card,
+                'report_card': form.report_card,
+                'photo': form.photo
             }
             
-            track_field = track_field_map.get(form.registration_track.data)
-            if track_field and getattr(form, track_field).data:
-                track_file = getattr(form, track_field).data
-                files_data['track_document_data'] = track_file.read()
-                files_data['track_document_filename'] = secure_filename(track_file.filename)
-                files_data['track_document_mimetype'] = track_file.mimetype
+            for doc_name, doc_field in documents.items():
+                if doc_field.data:
+                    file = doc_field.data
+                    setattr(user_form, f'{doc_name}_data', file.read())
+                    setattr(user_form, f'{doc_name}_filename', secure_filename(file.filename))
+                    setattr(user_form, f'{doc_name}_mimetype', file.mimetype)
             
-            # Create new form entry
-            new_form = Form(
-                user_id=current_user.id,
-                form_data=json.dumps(form_data),
-                registration_track=form.registration_track.data,
-                **files_data
-            )
+            # Handle optional track selection and documents
+            if form.registration_track.data:
+                user_form.registration_track = form.registration_track.data
+                track_docs = {
+                    'achievement': form.achievement_docs,
+                    'affirmation': form.affirmation_docs,
+                    'domicile': form.domicile_docs
+                }
+                if form.registration_track.data in track_docs:
+                    track_doc = track_docs[form.registration_track.data]
+                    if track_doc.data:
+                        user_form.track_document_data = track_doc.data.read()
+                        user_form.track_document_filename = secure_filename(track_doc.data.filename)
+                        user_form.track_document_mimetype = track_doc.data.mimetype
             
-            db.session.add(new_form)
             db.session.commit()
-            
-            flash('Your application has been submitted successfully!', 'success')
+            flash('Form submitted successfully! You can upload or update documents later.', 'success')
             return redirect(url_for('main.dashboard'))
             
         except Exception as e:
             db.session.rollback()
-            flash('An error occurred while submitting your application.', 'danger')
+            flash('Error submitting form. Please try again.', 'danger')
             print(f"Error: {str(e)}")
-            
+    
     return render_template('dashboard_user.html', 
                          form=None, 
                          admission_form=form)
@@ -369,3 +400,115 @@ def view_file(form_id, document_type):
         mimetype=mimetype,
         as_attachment=False
     )
+
+@main.route('/update-profile', methods=['POST'])
+@login_required
+def update_profile():
+    if current_user.role == 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    form = Form.query.filter_by(user_id=current_user.id).first()
+    if not form:
+        return jsonify({'error': 'No form found'}), 404
+        
+    data = request.json
+    try:
+        completion = form.update_personal_info(data)
+        db.session.commit()
+        return jsonify({
+            'message': 'Profile updated successfully',
+            'completion': completion
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/update-document/<document_type>', methods=['POST'])
+@login_required
+def update_document(document_type):
+    if current_user.role == 'admin':
+        return jsonify({'error': 'Admins cannot submit documents'}), 403
+        
+    form = Form.query.filter_by(user_id=current_user.id).first()
+    if not form:
+        return jsonify({'error': 'No form found'}), 404
+        
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+        
+    try:
+        # Read file data and update document
+        file_data = file.read()
+        completion = form.update_document(
+            document_type,
+            file_data,
+            secure_filename(file.filename),
+            file.content_type
+        )
+        
+        # Commit changes to database
+        db.session.commit()
+        
+        return jsonify({
+            'message': f'{document_type} updated successfully',
+            'completion': completion
+        })
+        
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/update-personal-info', methods=['POST'])
+@login_required
+def update_personal_info():
+    if current_user.role == 'admin':
+        return jsonify({'success': False, 'message': 'Admin cannot submit forms'}), 403
+
+    form = Form.query.filter_by(user_id=current_user.id).first()
+    if not form:
+        return jsonify({'success': False, 'message': 'Form not found'}), 404
+
+    try:
+        data = request.json
+        # Update personal information
+        if 'gender' in data:
+            form.gender = data['gender']
+        if 'religion' in data:
+            form.religion = data['religion']
+        
+        # Update form data fields
+        form_data = form.parsed_form_data
+        updateable_fields = [
+            'birth_date',
+            'address', 
+            'phone',
+            'previous_school'
+        ]
+        
+        for field in updateable_fields:
+            if field in data:
+                form_data[field] = data[field]
+        
+        form.form_data = json.dumps(form_data)
+        db.session.commit()
+
+        completion = form.calculate_profile_completion()
+        return jsonify({
+            'success': True,
+            'completion': completion,
+            'message': 'Personal information updated successfully'
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False, 
+            'message': f'Error updating information: {str(e)}'
+        }), 500

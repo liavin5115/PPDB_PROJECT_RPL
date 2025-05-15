@@ -5,27 +5,58 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
+        <div class="card shadow">
+            <div class="card-body p-4">
                 <h2 class="text-center mb-4">Pendaftaran Akun</h2>
-                <form method="POST">
+                
+                <form method="POST" class="needs-validation" novalidate>
                     {{ form.hidden_tag() }}
+                    
                     <div class="mb-3">
                         <label for="username" class="form-label">Nama Pengguna</label>
-                        {{ form.username(class="form-control") }}
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
+
                     <div class="mb-3">
                         <label for="password" class="form-label">Kata Sandi</label>
-                        {{ form.password(class="form-control") }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
+
                     <div class="mb-3">
                         <label for="name" class="form-label">Nama Lengkap</label>
-                        {{ form.name(class="form-control") }}
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Daftar</button>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="bi bi-person-plus-fill me-2"></i>Daftar
+                    </button>
                 </form>
-                <div class="text-center mt-3">
-                    <p>Sudah punya akun? <a href="{{ url_for('auth.login') }}">Masuk di sini</a></p>
+
+                <div class="text-center mt-4">
+                    <p class="mb-0">Sudah punya akun? 
+                        <a href="{{ url_for('auth.login') }}" class="text-primary">Masuk di sini</a>
+                    </p>
                 </div>
             </div>
         </div>

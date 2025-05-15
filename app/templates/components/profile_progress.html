@@ -1,0 +1,56 @@
+<div class="profile-progress-section mb-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <!-- Profile Progress -->
+            <div class="profile-section mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-check text-primary me-2"></i>Kelengkapan Profil
+                    </h5>
+                    <span class="badge bg-{{ progress_class }} rounded-pill">
+                        {{ completion_percentage }}%
+                    </span>
+                </div>
+
+                <div class="progress mb-3" style="height: 10px;" role="progressbar" 
+                     aria-label="Profile completion progress"
+                     aria-valuenow="{{ completion_percentage }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    <div class="progress-bar bg-{{ progress_class }}" 
+                         style="width: {{ completion_percentage }}%"></div>
+                </div>
+
+                <div class="profile-status text-{{ progress_class }} small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    {{ status_message }}
+                </div>
+            </div>
+
+            <!-- Document Progress -->
+            <div class="document-section">
+                <h6 class="mb-3">Status Dokumen</h6>
+                <div class="document-checklist">
+                    {% for doc in required_documents %}
+                    <div class="document-item d-flex align-items-center mb-2 p-2 rounded hover-bg-light" 
+                         data-bs-toggle="tooltip" 
+                         data-bs-placement="right"
+                         title="{{ 'Dokumen telah diunggah' if doc.uploaded else 'Dokumen belum diunggah' }}">
+                        <i class="bi bi-{{ 'check-circle-fill text-success' if doc.uploaded else 'circle text-muted' }} me-2"></i>
+                        <span class="{{ 'text-muted' if not doc.uploaded }}">{{ doc.name }}</span>
+                        {% if doc.uploaded %}
+                            <button class="btn btn-sm btn-outline-primary ms-auto view-doc-btn">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        {% else %}
+                            <button class="btn btn-sm btn-outline-secondary ms-auto upload-doc-btn">
+                                <i class="bi bi-upload"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -120,23 +120,58 @@
                                     </div>
                                     <div class="doc-info">
                                         <h6 class="doc-title">{{ doc_name }}</h6>
-                                        <p class="doc-filename" title="{{ form[doc_id + '_filename'] }}">
-                                            {{ form[doc_id + '_filename'] }}
-                                        </p>
+                                        <p class="doc-filename">{{ form[doc_id + '_filename'] }}</p>
                                     </div>
                                 </div>
                                 <div class="doc-actions">
-                                    <button type="button" class="btn btn-primary" 
+                                    {% if 'photo' in doc_id %}
+                                    <button type="button" class="btn btn-sm btn-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#photoModal{{ form.id }}"
+                                            aria-label="Lihat {{ doc_name }}">
+                                        <i class="bi bi-eye"></i> Lihat
+                                    </button>
+                                    {% else %}
+                                    <button type="button" class="btn btn-sm btn-primary" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#fileModal{{ form.id }}_{{ doc_id }}"
                                             aria-label="Lihat {{ doc_name }}">
-                                        <i class="bi bi-eye-fill"></i>
-                                        <span>Lihat</span>
+                                        <i class="bi bi-eye"></i> Lihat
                                     </button>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% endif %}
                         {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Add Photo Modal -->
+                <div class="modal fade" id="photoModal{{ form.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0">
+                            <div class="modal-header border-bottom">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-image me-2"></i>Pas Foto
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div class="photo-viewer">
+                                    <img src="data:{{ form.photo_mimetype }};base64,{{ form.photo_data|b64encode }}"
+                                         class="img-fluid w-100"
+                                         alt="Pas Foto"
+                                         style="max-height: 70vh; object-fit: contain;">
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top">
+                                <a href="{{ url_for('main.download_file', form_id=form.id, document_type='photo') }}" 
+                                   class="btn btn-primary">
+                                    <i class="bi bi-download me-1"></i>Unduh
+                                </a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

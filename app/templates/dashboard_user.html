@@ -138,22 +138,86 @@
                         
                         <!-- Personal Information -->
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0">Informasi Pribadi</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Personal Information</h5>
+                                <button type="button" class="btn btn-primary btn-sm" id="editPersonalInfo">
+                                    <i class="bi bi-pencil-fill me-1"></i>Edit
+                                </button>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p><strong>Nama Lengkap:</strong><br>{{ form.user.name }}</p>
-                                        <p><strong>Tanggal Lahir:</strong><br>{{ form.parsed_form_data.birth_date }}</p>
-                                        <p><strong>Nomor Telepon:</strong><br>{{ form.parsed_form_data.phone }}</p>
+                                <form id="personalInfoForm" class="needs-validation" novalidate>
+                                    <div class="row g-3">
+                                        <!-- Name field (readonly) -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
+                                        </div>
+                                        
+                                        <!-- Gender field -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Gender</label>
+                                            <select name="gender" class="form-control profile-field" disabled>
+                                                <option value="Laki-laki" {% if form.gender == 'Laki-laki' %}selected{% endif %}>Laki-laki</option>
+                                                <option value="Perempuan" {% if form.gender == 'Perempuan' %}selected{% endif %}>Perempuan</option>
+                                            </select>
+                                            <div class="update-status"></div>
+                                        </div>
+                                        
+                                        <!-- Birth Date field -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Birth Date</label>
+                                            <input type="date" name="birth_date" class="form-control profile-field" 
+                                                   value="{{ form.parsed_form_data.get('birth_date', '') }}" disabled>
+                                            <div class="update-status"></div>
+                                        </div>
+                                        
+                                        <!-- Religion field -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Religion</label>
+                                            <select name="religion" class="form-control profile-field" disabled>
+                                                {% for religion in ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'] %}
+                                                    <option value="{{ religion }}" {% if form.religion == religion %}selected{% endif %}>
+                                                        {{ religion }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="update-status"></div>
+                                        </div>
+                                        
+                                        <!-- Address field -->
+                                        <div class="col-12">
+                                            <label class="form-label">Address</label>
+                                            <textarea name="address" class="form-control profile-field" rows="2" disabled>{{ form.parsed_form_data.get('address', '') }}</textarea>
+                                            <div class="update-status"></div>
+                                        </div>
+                                        
+                                        <!-- Phone field -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Phone</label>
+                                            <input type="tel" name="phone" class="form-control profile-field" 
+                                                   value="{{ form.parsed_form_data.get('phone', '') }}" disabled>
+                                            <div class="update-status"></div>
+                                        </div>
+                                        
+                                        <!-- Previous School field -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Previous School</label>
+                                            <input type="text" name="previous_school" class="form-control profile-field" 
+                                                   value="{{ form.parsed_form_data.get('previous_school', '') }}" disabled>
+                                            <div class="update-status"></div>
+                                        </div>
+
+                                        <!-- Save/Cancel buttons (initially hidden) -->
+                                        <div class="col-12 mt-3 d-none" id="personalInfoButtons">
+                                            <button type="button" class="btn btn-primary" id="savePersonalInfo">
+                                                <i class="bi bi-check-lg me-1"></i>Save Changes
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="cancelPersonalInfo">
+                                                <i class="bi bi-x-lg me-1"></i>Cancel
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p><strong>Alamat:</strong><br>{{ form.parsed_form_data.address }}</p>
-                                        <p><strong>Sekolah Asal:</strong><br>{{ form.parsed_form_data.previous_school }}</p>
-                                        <p><strong>Tanggal Pendaftaran:</strong><br>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
 
@@ -200,32 +264,136 @@
                         <!-- Documents -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="mb-0">Dokumen yang Diupload</h5>
+                                <h5 class="card-title mb-0">Documents</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        {% if form.graduation_certificate_data %}
-                                            <p><i class="bi bi-check-circle-fill text-success"></i> Ijazah/SKL</p>
-                                        {% endif %}
-                                        {% if form.birth_certificate_data %}
-                                            <p><i class="bi bi-check-circle-fill text-success"></i> Akta Kelahiran</p>
-                                        {% endif %}
-                                        {% if form.family_card_data %}
-                                            <p><i class="bi bi-check-circle-fill text-success"></i> Kartu Keluarga</p>
-                                        {% endif %}
+                                <!-- Add hidden form ID -->
+                                <input type="hidden" id="formId" value="{{ form.id }}">
+                                
+                                <div class="document-grid">
+                                    {% set documents = [
+                                        ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data),
+                                        ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data),
+                                        ('family_card', 'Kartu Keluarga', form.family_card_data),
+                                        ('report_card', 'Rapor', form.report_card_data),
+                                        ('photo', 'Pas Foto', form.photo_data)
+                                    ] %}
+                                    
+                                    {% for doc_id, doc_name, doc_data in documents %}
+                                    <div class="document-item mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ doc_name }}</h6>
+                                                <small class="text-muted doc-status" data-doc-type="{{ doc_id }}">
+                                                    {% if doc_data %}
+                                                        Uploaded: {{ form[doc_id + '_filename'] }}
+                                                    {% else %}
+                                                        Not uploaded
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <div class="btn-group">
+                                                {% if doc_data %}
+                                                    <button type="button" class="btn btn-sm btn-outline-primary view-doc-btn"
+                                                            data-doc-type="{{ doc_id }}">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
+                                                {% endif %}
+                                                <button type="button" class="btn btn-sm btn-outline-secondary upload-doc-btn"
+                                                        data-doc-type="{{ doc_id }}">
+                                                    <i class="bi bi-upload"></i> Update
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <input type="file" class="d-none document-input" 
+                                               data-doc-type="{{ doc_id }}"
+                                               accept=".pdf,.jpg,.jpeg,.png">
                                     </div>
-                                    <div class="col-md-6">
-                                        {% if form.report_card_data %}
-                                            <p><i class="bi bi-check-circle-fill text-success"></i> Rapor</p>
-                                        {% endif %}
-                                        {% if form.photo_data %}
-                                            <p><i class="bi bi-check-circle-fill text-success"></i> Pas Foto</p>
-                                        {% endif %}
-                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Add file viewer modals -->
+                        {% for doc_id, doc_name, doc_data in documents %}
+                            {% if doc_data %}
+                            <div class="modal fade" id="fileModal_{{ doc_id }}" tabindex="-1" aria-labelledby="fileModalLabel_{{ doc_id }}" aria-hidden="true" data-bs-backdrop="static">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="fileModalLabel_{{ doc_id }}">{{ doc_name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-0">
+                                            {% if 'image' in form[doc_id + '_mimetype'] %}
+                                                <img src="data:{{ form[doc_id + '_mimetype'] }};base64,{{ doc_data|b64encode }}"
+                                                     class="img-fluid w-100"
+                                                     alt="{{ doc_name }}"
+                                                     loading="lazy">
+                                            {% elif 'pdf' in form[doc_id + '_mimetype'] %}
+                                                <embed src="data:{{ form[doc_id + '_mimetype'] }};base64,{{ doc_data|b64encode }}"
+                                                       type="application/pdf"
+                                                       width="100%"
+                                                       height="600px">
+                                            {% else %}
+                                                <div class="alert alert-warning m-3">
+                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                    Format file tidak didukung untuk pratinjau
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_id) }}" 
+                                               class="btn btn-primary">
+                                                <i class="bi bi-download me-2"></i>Download
+                                            </a>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Required Documents -->
+                        {% if form %}
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Required Documents</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="document-list">
+                                        {% set documents = [
+                                            ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data),
+                                            ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data),
+                                            ('family_card', 'Kartu Keluarga', form.family_card_data),
+                                            ('report_card', 'Rapor', form.report_card_data),
+                                            ('photo', 'Pas Foto', form.photo_data)
+                                        ] %}
+                                        
+                                        {% for doc_id, doc_name, doc_data in documents %}
+                                            <div class="document-item d-flex align-items-center justify-content-between mb-3 p-2 border rounded">
+                                                <div>
+                                                    <h6 class="mb-0">{{ doc_name }}</h6>
+                                                    <small class="text-{{ 'success' if doc_data else 'warning' }}">
+                                                        {% if doc_data %}
+                                                            <i class="bi bi-check-circle-fill"></i> Uploaded
+                                                            <button type="button" 
+                                                                    class="btn btn-sm btn-link view-doc-btn" 
+                                                                    data-doc-type="{{ doc_id }}">
+                                                                <i class="bi bi-eye-fill"></i> View
+                                                            </button>
+                                                        {% else %}
+                                                            <i class="bi bi-exclamation-circle-fill"></i> Not uploaded
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
 
                         <!-- Registration Track -->
                         {% if form.registration_track %}
@@ -604,36 +772,117 @@
 </div>
 {% endblock %}
 
+<!-- Photo Modal -->
+<div class="modal fade" id="photoModal{{ form.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pas Foto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <img src="data:{{ form.photo_mimetype }};base64,{{ form.photo_data|b64encode }}"
+                     class="img-fluid w-100"
+                     alt="Pas Foto">
+            </div>
+            <div class="modal-footer">
+                <a href="{{ url_for('main.download_file', form_id=form.id, document_type='photo') }}" 
+                   class="btn btn-primary">
+                    <i class="bi bi-download"></i> Unduh
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add this to your scripts section -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize clipboard.js
-  new ClipboardJS('.copy-button');
-  
-  // File upload label update
-  const fileInput = document.querySelector('.file-upload-input');
-  const fileLabel = document.querySelector('.file-upload-label span');
-  
-  fileInput.addEventListener('change', function() {
-    if (this.files.length > 0) {
-      fileLabel.textContent = this.files[0].name;
-    } else {
-      fileLabel.textContent = 'Choose file...';
-    }
-  });
-  
-  // Copy button feedback
-  document.querySelectorAll('.copy-button').forEach(button => {
-    button.addEventListener('click', function() {
-      const icon = this.querySelector('i');
-      icon.classList.remove('bi-clipboard');
-      icon.classList.add('bi-clipboard-check');
-      setTimeout(() => {
-        icon.classList.remove('bi-clipboard-check');
-        icon.classList.add('bi-clipboard');
-      }, 1500);
+    // Initialize clipboard.js
+    new ClipboardJS('.copy-button');
+
+    // Store currently open modal
+    let currentModal = null;
+
+    // View document button click handler 
+    document.querySelectorAll('.view-doc-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent event bubbling
+            
+            // Close current modal if exists
+            if (currentModal) {
+                currentModal.hide();
+            }
+
+            const docType = this.dataset.docType;
+            const modalId = `fileModal_${docType}`;
+            const modal = document.getElementById(modalId);
+
+            if (modal) {
+                // Disable animations and transitions temporarily
+                modal.style.transition = 'none';
+                modal.querySelectorAll('*').forEach(el => el.style.transition = 'none');
+                
+                const modalInstance = new bootstrap.Modal(modal, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                
+                // Show modal without animation
+                modalInstance.show();
+                currentModal = modalInstance;
+
+                // Re-enable animations after modal is shown
+                setTimeout(() => {
+                    modal.style.transition = '';
+                    modal.querySelectorAll('*').for each(el => el.style.transition = '';
+                }, 300);
+
+                // Handle modal hidden event
+                modal.addEventListener('hidden.bs.modal', function() {
+                    currentModal = null;
+                });
+            }
+        });
     });
-  });
+
+    // Other modal handling
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('hide.bs.modal', function() {
+            // Clean up when modal is closed
+            currentModal = null;
+        });
+    });
+
+    // Document inputs
+    const fileInput = document.querySelector('.file-upload-input');
+    const fileLabel = document.querySelector('.file-upload-label span');
+  
+    if (fileInput && fileLabel) {
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileLabel.textContent = this.files[0].name;
+            } else {
+                fileLabel.textContent = 'Choose file...';
+            }
+        });
+    }
+  
+    // Copy button feedback
+    document.querySelectorAll('.copy-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.classList.remove('bi-clipboard');
+            icon.classList.add('bi-clipboard-check');
+            setTimeout(() => {
+                icon.classList.remove('bi-clipboard-check');
+                icon.classList.add('bi-clipboard');
+            }, 1500);
+        });
+    });
 });
 </script>
