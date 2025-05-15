@@ -522,6 +522,118 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- Payment Information Section -->
+        <div class="payment-info-section">
+            <!-- Payment Status -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h5 class="mb-0">Payment Information</h5>
+                <div class="payment-status {{ form.payment_status if form and form.payment_status else 'unpaid' }}">
+                    <i class="bi {{ 'bi-check-circle-fill' if form.payment_status == 'verified'
+                                else 'bi-hourglass-split' if form.payment_status == 'submitted'
+                                else 'bi-exclamation-circle-fill' }}"></i>
+                    <span>{{ 'Paid & Verified' if form.payment_status == 'verified'
+                            else 'Pending Verification' if form.payment_status == 'submitted'
+                            else 'Unpaid' }}</span>
+                </div>
+            </div>
+
+            <!-- Payment Amount Section -->
+            <div class="payment-amount-card mb-4">
+                <h6 class="mb-3">Payment Details</h6>
+                <div class="payment-breakdown">
+                    <div class="payment-item d-flex justify-content-between align-items-center mb-2">
+                        <span>Registration Fee</span>
+                        <span>Rp7.000.000</span>
+                    </div>
+                    <div class="payment-item d-flex justify-content-between align-items-center mb-2">
+                        <span>Monthly Tuition (SPP)</span>
+                        <span>Rp500.000</span>
+                    </div>
+                    <div class="payment-total d-flex justify-content-between align-items-center mt-3">
+                        <span class="fw-bold">Total Payment Due</span>
+                        <span class="fw-bold text-primary fs-5">Rp7.500.000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Transfer Details -->
+            <div class="bank-details">
+                <h6 class="mb-3">Bank Transfer Details</h6>
+                <div class="bank-detail-item">
+                    <span class="bank-detail-label">Bank Name</span>
+                    <div class="bank-detail-value">
+                        <span>Bank Mandiri</span>
+                        <button class="copy-button" data-clipboard-text="Bank Mandiri">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="bank-detail-item">
+                    <span class="bank-detail-label">Account Number</span>
+                    <div class="bank-detail-value">
+                        <span>1234567890</span>
+                        <button class="copy-button" data-clipboard-text="1234567890">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="bank-detail-item">
+                    <span class="bank-detail-label">Account Holder</span>
+                    <div class="bank-detail-value">
+                        <span>SMKN 1 BEKASI</span>
+                        <button class="copy-button" data-clipboard-text="SMKN 1 BEKASI">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="qr-code-section">
+                <h6>Scan QR Code to Pay Instantly</h6>
+                <img src="{{ url_for('static', filename='img/qr-code.png') }}" alt="Payment QR Code" class="qr-code-image">
+                <p class="text-muted mb-0">Support QRIS, OVO, GoPay, and other e-wallets</p>
+            </div>
+
+
+            <!-- Payment History -->
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
+
+<!-- Add this to your scripts section -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize clipboard.js
+  new ClipboardJS('.copy-button');
+  
+  // File upload label update
+  const fileInput = document.querySelector('.file-upload-input');
+  const fileLabel = document.querySelector('.file-upload-label span');
+  
+  fileInput.addEventListener('change', function() {
+    if (this.files.length > 0) {
+      fileLabel.textContent = this.files[0].name;
+    } else {
+      fileLabel.textContent = 'Choose file...';
+    }
+  });
+  
+  // Copy button feedback
+  document.querySelectorAll('.copy-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const icon = this.querySelector('i');
+      icon.classList.remove('bi-clipboard');
+      icon.classList.add('bi-clipboard-check');
+      setTimeout(() => {
+        icon.classList.remove('bi-clipboard-check');
+        icon.classList.add('bi-clipboard');
+      }, 1500);
+    });
+  });
+});
+</script>
