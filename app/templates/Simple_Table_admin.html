@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Tabel Data Pendaftar{% endblock %}
+
+{% block head %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.bootstrap5.min.css">
+
+<style>
+    /* Custom table styles */
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+    
+    .progress {
+        background-color: #e9ecef;
+        border-radius: 0.5rem;
+    }
+    
+    .progress-bar {
+        border-radius: 0.5rem;
+        transition: width 0.6s ease;
+    }
+    
+    /* Filter button styles */
+    .btn-group .btn {
+        border-radius: 0.375rem;
+        margin: 0 0.125rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-group .btn.active {
+        background-color: var(--bs-primary);
+        color: white;
+        border-color: var(--bs-primary);
+    }
+    
+    /* Status badge styles */
+    .badge {
+        padding: 0.4em 0.6em;
+        font-weight: 500;
+    }
+    
+    /* Document status indicators */
+    .document-status i {
+        font-size: 1rem;
+        width: 1.2rem;
+        text-align: center;
+    }
+    
+    /* Export buttons styling */
+    .dt-buttons .btn-primary {
+        margin-right: 0.5rem;
+    }
+    
+    .dropdown-item {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Table card styles */
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 2rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Table Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Database Pendaftar</h2>
+        <p class="text-muted">Kelola dan pantau semua pendaftar dalam satu tampilan</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Main Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-0 py-3">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="card-title mb-0">Daftar Pendaftar</h5>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filterAccepted">
+                            <i class="bi bi-check-circle text-success me-1"></i>Diterima
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filterPending">
+                            <i class="bi bi-clock text-warning me-1"></i>Pending
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filterRejected">
+                            <i class="bi bi-x-circle text-danger me-1"></i>Ditolak
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filterAll">
+                            <i class="bi bi-funnel me-1"></i>Semua
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="applicantsTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama</th>
+                        <th>Status</th>
+                        <th>Kontak</th>
+                        <th>Data Pribadi</th>
+                        <th>Jalur & Sekolah</th>
+                        <th>Status Dokumen</th>
+                        <th>Status Pembayaran</th>
+                        <th>Progress</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in forms %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <div class="fw-bold">{{ form.user.name }}</div>
+                                    <small class="text-muted">ID: {{ form.id }}</small>
+                                    <div class="text-muted small">Terdaftar: {{ form.timestamp.strftime('%d/%m/%Y %H:%M') }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if form.status == 'accepted' 
+                                                else 'danger' if form.status == 'rejected' 
+                                                else 'warning' }} rounded-pill">
+                                <i class="bi bi-{{ 'check-circle-fill' if form.status == 'accepted' 
+                                               else 'x-circle-fill' if form.status == 'rejected'
+                                               else 'clock' }} me-1"></i>
+                                {{ 'Diterima' if form.status == 'accepted' 
+                                   else 'Ditolak' if form.status == 'rejected'
+                                   else 'Pending' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="small">
+                                {% if form.parsed_form_data.get('phone') %}
+                                    <div><i class="bi bi-phone me-1"></i>{{ form.parsed_form_data.get('phone') }}</div>
+                                {% endif %}
+                                {% if form.parsed_form_data.get('address') %}
+                                    <div class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ form.parsed_form_data.get('address') }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <div><i class="bi bi-person me-1"></i>{{ form.gender }}</div>
+                                <div><i class="bi bi-calendar me-1"></i>{{ form.parsed_form_data.get('birth_date', '-') }}</div>
+                                <div><i class="bi bi-book me-1"></i>{{ form.religion }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <div>
+                                    {% if form.registration_track %}
+                                        <span class="badge bg-info rounded-pill">{{ form.registration_track|title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill">Belum Dipilih</span>
+                                    {% endif %}
+                                </div>
+                                <div class="mt-1">
+                                    <i class="bi bi-building me-1"></i>{{ form.parsed_form_data.get('previous_school', '-') }}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">
+                                {% set doc_status = form.get_document_status() %}
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        <i class="bi {{ 'bi-check-circle-fill text-success' if doc_status.graduation_certificate else 'bi-x-circle-fill text-danger' }} me-1"></i>
+                                        Ijazah
+                                    </div>
+                                    <div>
+                                        <i class="bi {{ 'bi-check-circle-fill text-success' if doc_status.birth_certificate else 'bi-x-circle-fill text-danger' }} me-1"></i>
+                                        Akte
+                                    </div>
+                                    <div>
+                                        <i class="bi {{ 'bi-check-circle-fill text-success' if doc_status.family_card else 'bi-x-circle-fill text-danger' }} me-1"></i>
+                                        KK
+                                    </div>
+                                    {% if form.registration_track and doc_status.get('track_document', false) %}
+                                        <div>
+                                            <i class="bi {{ 'bi-check-circle-fill text-success' if doc_status.track_document else 'bi-x-circle-fill text-danger' }} me-1"></i>
+                                            Dokumen Jalur
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column align-items-start gap-2">
+                                <span class="badge bg-{{ 'success' if form.payment_status == 'verified' 
+                                                    else 'warning' if form.payment_status == 'pending' 
+                                                    else 'danger' }} rounded-pill">
+                                    <i class="bi bi-{{ 'credit-card-check' if form.payment_status == 'verified'
+                                                   else 'credit-card-2-front' if form.payment_status == 'pending'
+                                                   else 'credit-card' }} me-1"></i>
+                                    {{ form.payment_status|title }}
+                                </span>
+                                {% if form.payment_date %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-check me-1"></i>
+                                        {{ form.payment_date.strftime('%d/%m/%Y') }}
+                                    </small>
+                                {% endif %}
+                                {% if form.payment_amount %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-cash me-1"></i>
+                                        Rp {{ "{:,.0f}".format(form.payment_amount) }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1" style="height: 5px;">
+                                    <div class="progress-bar {{ 'bg-success' if form.progress_percentage == 100 
+                                                          else 'bg-warning' }}" 
+                                        role="progressbar" 
+                                        style="width: {{ form.progress_percentage }}%">
+                                    </div>
+                                </div>
+                                <span class="ms-2 small">{{ form.progress_percentage }}%</span>
+                            </div>
+                            <div class="small text-muted mt-1">{{ form.progress_status|title }}</div>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" 
+                                        data-bs-target="#detailModal{{ form.id }}" title="Lihat Detail">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                
+                                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" 
+                                        data-bs-toggle="dropdown" title="Update Status">
+                                    <i class="bi bi-check2-square"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <form action="{{ url_for('main.update_status', form_id=form.id) }}" 
+                                              method="POST" class="status-update-form">
+                                            <input type="hidden" name="status" value="accepted">
+                                            <button type="submit" class="dropdown-item text-success">
+                                                <i class="bi bi-check-circle me-2"></i>Terima
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form action="{{ url_for('main.update_status', form_id=form.id) }}" 
+                                              method="POST" class="status-update-form">
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-x-circle me-2"></i>Tolak
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                                
+                                {% if form.payment_status == 'pending' %}
+                                <form action="{{ url_for('main.verify_payment', form_id=form.id) }}" 
+                                      method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success" title="Verifikasi Pembayaran">
+                                        <i class="bi bi-credit-card-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <button type="button" class="btn btn-sm btn-secondary" title="Lihat Dokumen"
+                                        data-bs-toggle="modal" data-bs-target="#documentsModal{{ form.id }}">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include 'modals/document_modals.html' %}
+{% endblock %}
+
+{% block scripts %}
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTables with advanced features
+    var table = $('#applicantsTable').DataTable({
+        responsive: true,
+        fixedHeader: true,
+        pageLength: 25,
+        dom: '<"row mb-3"<"col-md-6"B><"col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        buttons: [
+            {
+                extend: 'collection',
+                text: '<i class="bi bi-download me-1"></i>Export',
+                className: 'btn-primary',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
+                        className: 'dropdown-item',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
+                        className: 'dropdown-item',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer me-1"></i>Print',
+                        className: 'dropdown-item',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        }
+                    }
+                ]
+            }
+        ],
+        language: {
+            search: "Cari:",
+            lengthMenu: "Tampilkan _MENU_ entri",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+            infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+            infoFiltered: "(disaring dari _MAX_ total entri)",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Selanjutnya",
+                previous: "Sebelumnya"
+            },
+            emptyTable: "Tidak ada data yang tersedia",
+            zeroRecords: "Tidak ditemukan data yang sesuai"
+        }
+    });
+
+    // Status filter buttons
+    $('#filterAll').on('click', function() {
+        table.search('').columns(2).search('').draw();
+        updateFilterButtons('all');
+    });
+
+    $('#filterAccepted').on('click', function() {
+        table.columns(2).search('Diterima').draw();
+        updateFilterButtons('accepted');
+    });
+
+    $('#filterPending').on('click', function() {
+        table.columns(2).search('Pending').draw();
+        updateFilterButtons('pending');
+    });
+
+    $('#filterRejected').on('click', function() {
+        table.columns(2).search('Ditolak').draw();
+        updateFilterButtons('rejected');
+    });
+
+    // Helper function to update filter button states
+    function updateFilterButtons(active) {
+        $('.btn-group .btn').removeClass('active');
+        switch(active) {
+            case 'accepted':
+                $('#filterAccepted').addClass('active');
+                break;
+            case 'pending':
+                $('#filterPending').addClass('active');
+                break;
+            case 'rejected':
+                $('#filterRejected').addClass('active');
+                break;
+            default:
+                $('#filterAll').addClass('active');
+        }
+    }
+
+    // Status update form handlers
+    $('.status-update-form').on('submit', function(e) {
+        e.preventDefault();
+        if (confirm('Apakah Anda yakin ingin mengubah status pendaftar ini?')) {
+            this.submit();
+        }
+    });
+});
+</script>
+{% endblock %}

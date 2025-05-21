@@ -1,15 +1,14 @@
 class DocumentModalHandler {
     constructor() {
         this.modalInstances = new Map();
+        this.currentModal = null;
         this.init();
     }
 
     init() {
         // Initialize modal instances
         document.querySelectorAll('.document-viewer-modal').forEach(modal => {
-            modal.style.transform = 'translateZ(0)';
-            modal.style.backfaceVisibility = 'hidden';
-            modal.style.willChange = 'transform';
+            this.optimizeModal(modal);
         });
 
         // Add click handlers to view buttons
@@ -66,6 +65,35 @@ class DocumentModalHandler {
             instance.dispose();
             this.modalInstances.delete(modalId);
         }
+    }
+
+    optimizeModal(modal) {
+        // Apply performance optimizations
+        modal.style.transform = 'translateZ(0)';
+        modal.style.backfaceVisibility = 'hidden';
+        modal.style.webkitBackfaceVisibility = 'hidden';
+        modal.style.perspective = '1000';
+        modal.style.webkitPerspective = '1000';
+        modal.style.willChange = 'transform';
+
+        // Optimize images in modal
+        const images = modal.querySelectorAll('img');
+        images.forEach(img => this.optimizeImage(img));
+    }
+
+    optimizeImage(img) {
+        img.style.opacity = '0';
+        img.style.transition = 'opacity 0.2s ease-out';
+        img.addEventListener('load', () => {
+            img.style.opacity = '1';
+            const spinner = img.previousElementSibling;
+            if (spinner && spinner.classList.contains('spinner-border')) {
+                spinner.style.display = 'none';
+            }
+        });
+        img.style.transform = 'translateZ(0)';
+        img.style.backfaceVisibility = 'hidden';
+        img.style.webkitBackfaceVisibility = 'hidden';
     }
 }
 

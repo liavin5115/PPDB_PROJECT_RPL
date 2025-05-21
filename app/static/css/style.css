@@ -1688,7 +1688,7 @@ body {
 }
 
 .profile-field.is-valid {
-    border-color: var(--bs-success);
+    border-color: var (--bs-success);
 }
 
 .profile-field.is-invalid {
@@ -1769,18 +1769,32 @@ body {
 
 /* Photo viewer styles */
 .photo-viewer {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #f8f9fa;
     min-height: 300px;
     padding: 1rem;
+    overflow: hidden;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .photo-viewer img {
     max-width: 100%;
+    max-height: 70vh;
+    width: auto;
     height: auto;
     border-radius: 4px;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -1801,5 +1815,567 @@ body {
 
 .modal.show .photo-viewer {
     transform: scale(1);
+}
+
+/* Notification Styles */
+.notifications-box {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: start;
+    padding: 1rem;
+    border-bottom: 1px solid var(--card-border);
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.notification-text {
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+}
+
+.notification-time {
+    color: var(--bs-gray-500);
+    font-size: 0.75rem;
+}
+
+/* Bank Details Styles */
+.bank-details {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.bank-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: var(--input-bg);
+    border-radius: 8px;
+}
+
+.bank-detail-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    color: var(--accent-primary);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.copy-button:hover {
+    transform: scale(1.1);
+}
+
+/* Status Badge Styles */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge i {
+    margin-right: 0.35rem;
+}
+
+.status-badge.pending {
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #f1c40f;
+}
+
+.status-badge.accepted {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.status-badge.rejected {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+/* Payment Card Styles */
+.payment-card {
+    background: linear-gradient(45deg, var(--accent-primary), #2980b9);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-amount-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 1rem 0;
+}
+
+.payment-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* QR Code Container */
+.qr-code-container {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    width: fit-content;
+    margin: 2rem auto;
+}
+
+.qr-code-container img {
+    max-width: 200px;
+}
+
+/* E-wallet Icons */
+.ewallet-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.ewallet-icons img {
+    height: 24px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.ewallet-icons img:hover {
+    opacity: 1;
+}
+
+/* Payment Information Styles */
+.payment-details {
+    background-color: var(--bs-light);
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.payment-status h6 {
+    margin-bottom: 0;
+}
+
+.bank-details {
+    background-color: var(--bs-light);
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.qr-code-section img {
+    border: 1px solid var(--bs-gray-200);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+/* Dark mode overrides for payment section */
+[data-bs-theme="dark"] .payment-details,
+[data-bs-theme="dark"] .bank-details {
+    background-color: var(--bs-dark);
+}
+
+[data-bs-theme="dark"] .qr-code-section img {
+    border-color: var(--bs-gray-700);
+    background-color: var(--bs-white);
+}
+
+.modal {
+    /* Prevent modal flickering */
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-font-smoothing: subpixel-antialiased;
+    animation: none !important;
+}
+
+.modal-dialog {
+    /* Disable transform animations */
+    transform: none !important;
+}
+
+.modal-backdrop {
+    /* Disable backdrop animation */
+    animation: none !important;
+}
+
+/* Photo viewer styles */
+.photo-viewer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bs-body-bg);
+    min-height: 300px;
+    padding: 1rem;
+    overflow: hidden; /* Prevent scroll */
+}
+
+.photo-viewer img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    pointer-events: none; /* Prevent image interaction */
+    user-select: none; /* Prevent selection */
+    -webkit-user-drag: none; /* Prevent dragging */
+    backface-visibility: hidden; /* Reduce flickering */
+    transform: translateZ(0); /* Force GPU acceleration */
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.2s ease-in-out;
+}
+
+.photo-viewer img.loaded {
+    opacity: 1; /* Show when loaded */
+}
+
+/* Loading spinner */
+.photo-viewer .spinner-border {
+    position: absolute;
+    z-index: 1;
+}
+
+/* Modal and Document Viewer Optimizations */
+.modal {
+    will-change: transform, opacity;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 95%;
+    width: auto;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 800px;
+    }
+}
+
+.modal-content {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.modal-body {
+    position: relative;
+    padding: 0;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Photo viewer styles */
+.photo-viewer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    min-height: 300px;
+    padding: 1rem;
+    overflow: hidden;
+    user-select: none;
+}
+
+.photo-viewer img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    transition: transform 0.2s ease-out;
+    cursor: zoom-in;
+    pointer-events: all;
+    transform-origin: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
+}
+
+.photo-viewer img.loaded {
+    opacity: 1;
+}
+
+.photo-viewer .spinner-border {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+/* PDF viewer styles */
+.modal embed[type="application/pdf"] {
+    min-height: 600px;
+    border: none;
+    background: white;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .photo-viewer {
+    background-color: #212529;
+}
+
+[data-bs-theme="dark"] .modal-body {
+    background-color: #212529;
+}
+
+[data-bs-theme="dark"] .modal embed[type="application/pdf"] {
+    background: #212529;
+}
+
+/* User Dashboard Styles */
+
+/* General Card Styles */
+.card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Document Grid Styles */
+.document-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.document-item {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.document-item:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+}
+
+.document-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background-color: rgba(0,0,0,0.05);
+}
+
+.document-actions {
+    margin-top: 1rem;
+}
+
+/* Timeline Styles */
+.status-timeline {
+    position: relative;
+    padding: 1rem 0;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 30px;
+    bottom: -20px;
+    width: 2px;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.timeline-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid var(--bs-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    z-index: 1;
+}
+
+.timeline-item.completed .timeline-icon {
+    border-color: var(--bs-success);
+    color: var(--bs-success);
+}
+
+.timeline-item.active .timeline-icon {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+}
+
+.timeline-item.rejected .timeline-icon {
+    border-color: var(--bs-danger);
+    color: var(--bs-danger);
+}
+
+.timeline-content {
+    flex: 1;
+}
+
+/* Notification Styles */
+.notifications-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    transition: background-color 0.3s ease;
+}
+
+.notification-item:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.notification-icon.bg-success {
+    background-color: var(--bs-success);
+}
+
+.notification-icon.bg-danger {
+    background-color: var(--bs-danger);
+}
+
+.notification-icon.bg-warning {
+    background-color: var(--bs-warning);
+}
+
+.notification-icon.bg-info {
+    background-color: var(--bs-info);
+}
+
+/* Payment Section Styles */
+.bank-details .bank-item {
+    padding: 0.5rem 0;
+}
+
+.bank-item .copy-button {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bank-item:hover .copy-button {
+    opacity: 1;
+}
+
+/* Form Styles */
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group .form-control:focus {
+    box-shadow: none;
+    border-color: var(--bs-border-color);
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Progress Bar Styles */
+.progress {
+    background-color: rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* QR Code Styles */
+.qr-section img {
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Responsive Styles */
+@media (min-width: 768px) {
+    .document-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .document-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Button Styles */
+.btn-outline-secondary:hover {
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-secondary-text-emphasis);
+    border-color: var(--bs-secondary-border-subtle);
 }
 

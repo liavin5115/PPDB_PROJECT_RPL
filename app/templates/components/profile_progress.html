@@ -1,52 +1,82 @@
 <div class="profile-progress-section mb-4">
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <!-- Profile Progress -->
-            <div class="profile-section mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-person-check text-primary me-2"></i>Kelengkapan Profil
-                    </h5>
+            <!-- Overall Progress -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-check text-primary me-2"></i>Progress Pendaftaran
+                </h5>
+                <div class="progress-badge">
                     <span class="badge bg-{{ progress_class }} rounded-pill">
                         {{ completion_percentage }}%
                     </span>
                 </div>
+            </div>
 
-                <div class="progress mb-3" style="height: 10px;" role="progressbar" 
+            <!-- Progress Bar -->
+            <div class="progress-wrapper mb-4">
+                <div class="progress" style="height: 10px;" role="progressbar" 
                      aria-label="Profile completion progress"
                      aria-valuenow="{{ completion_percentage }}" 
                      aria-valuemin="0" 
                      aria-valuemax="100">
-                    <div class="progress-bar bg-{{ progress_class }}" 
+                    <div class="progress-bar bg-{{ progress_class }} progress-bar-striped progress-bar-animated" 
                          style="width: {{ completion_percentage }}%"></div>
                 </div>
-
-                <div class="profile-status text-{{ progress_class }} small">
-                    <i class="bi bi-info-circle me-1"></i>
-                    {{ status_message }}
+                <div class="progress-labels d-flex justify-content-between mt-2">
+                    <small class="text-muted">0%</small>
+                    <small class="text-muted">50%</small>
+                    <small class="text-muted">100%</small>
                 </div>
             </div>
 
-            <!-- Document Progress -->
-            <div class="document-section">
-                <h6 class="mb-3">Status Dokumen</h6>
+            <!-- Progress Status -->
+            <div class="progress-status alert alert-{{ progress_class }} mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <div>{{ status_message }}</div>
+                </div>
+            </div>
+
+            <!-- Required Documents -->
+            <div class="required-documents">
+                <h6 class="mb-3">
+                    <i class="bi bi-file-earmark-text text-primary me-2"></i>Dokumen yang Diperlukan
+                </h6>
                 <div class="document-checklist">
                     {% for doc in required_documents %}
-                    <div class="document-item d-flex align-items-center mb-2 p-2 rounded hover-bg-light" 
+                    <div class="document-check-item d-flex align-items-center justify-content-between p-2 mb-2 rounded border" 
                          data-bs-toggle="tooltip" 
-                         data-bs-placement="right"
+                         data-bs-placement="left"
                          title="{{ 'Dokumen telah diunggah' if doc.uploaded else 'Dokumen belum diunggah' }}">
-                        <i class="bi bi-{{ 'check-circle-fill text-success' if doc.uploaded else 'circle text-muted' }} me-2"></i>
-                        <span class="{{ 'text-muted' if not doc.uploaded }}">{{ doc.name }}</span>
-                        {% if doc.uploaded %}
-                            <button class="btn btn-sm btn-outline-primary ms-auto view-doc-btn">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        {% else %}
-                            <button class="btn btn-sm btn-outline-secondary ms-auto upload-doc-btn">
-                                <i class="bi bi-upload"></i>
-                            </button>
-                        {% endif %}
+                        <div class="d-flex align-items-center">
+                            <div class="document-status-icon me-3">
+                                <i class="bi bi-{{ 'check-circle-fill text-success' if doc.uploaded else 'exclamation-circle text-warning' }}"></i>
+                            </div>
+                            <div class="document-info">
+                                <h6 class="mb-0">{{ doc.name }}</h6>
+                                <small class="text-muted">{{ 'Terunggah' if doc.uploaded else 'Belum diunggah' }}</small>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            {% if doc.uploaded %}
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary view-doc-btn"
+                                            data-doc-type="{{ doc.type }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary upload-doc-btn"
+                                            data-doc-type="{{ doc.type }}">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <button type="button" class="btn btn-sm btn-primary upload-doc-btn"
+                                        data-doc-type="{{ doc.type }}">
+                                    <i class="bi bi-upload me-1"></i>Upload
+                                </button>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
                 </div>

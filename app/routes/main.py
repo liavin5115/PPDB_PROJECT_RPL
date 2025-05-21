@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
+from datetime import datetime
+import json
 from wtforms import StringField, DateField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Optional
 from werkzeug.utils import secure_filename
@@ -92,49 +94,79 @@ class PaymentForm(FlaskForm):
 
 @main.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
     return render_template('landing_page.html')
 
 @main.route('/dashboard')
 @login_required
 def dashboard():
+    # For admin users
     if current_user.role == 'admin':
         forms = Form.query.all()
-        return render_template('dashboard_admin.html', forms=forms)
-    
-    user_form = Form.query.filter_by(user_id=current_user.id).first()
-    
-    if user_form:
-        profile_completion = user_form.calculate_profile_completion()
-        doc_completion = user_form.calculate_document_completion()
-        status, progress_class = user_form.completion_status
         
-        required_documents = [
-            {'name': 'Graduation Certificate', 'uploaded': bool(user_form.graduation_certificate_data)},
-            {'name': 'Birth Certificate', 'uploaded': bool(user_form.birth_certificate_data)},
-            {'name': 'Family Card', 'uploaded': bool(user_form.family_card_data)},
-            {'name': 'Report Card', 'uploaded': bool(user_form.report_card_data)},
-            {'name': 'Photo', 'uploaded': bool(user_form.photo_data)}
-        ]
-    else:
-        profile_completion = 0
-        doc_completion = 0
-        status = 'incomplete'
-        progress_class = 'danger'
-        required_documents = [
-            {'name': doc, 'uploaded': False} 
-            for doc in ['Graduation Certificate', 'Birth Certificate', 'Family Card', 'Report Card', 'Photo']
-        ]
-
+        # Authentication check
+        if not forms:
+            forms = []
+            
+        # Calculate application statistics
+        status_stats = {
+            'total': len(forms),
+            'pending': len([f for f in forms if f.status == 'pending']),
+            'accepted': len([f for f in forms if f.status == 'accepted']),
+            'rejected': len([f for f in forms if f.status == 'rejected'])
+        }
+        
+        # Calculate payment statistics
+        payment_stats = {
+            'verified': len([f for f in forms if f.payment_status == 'verified']),
+            'pending': len([f for f in forms if f.payment_status == 'pending']),
+            'unsubmitted': len([f for f in forms if f.payment_status == 'unsubmitted'])
+        }
+        
+        # Calculate gender distribution
+        gender_stats = {
+            'Laki-laki': len([f for f in forms if f.gender == 'Laki-laki']),
+            'Perempuan': len([f for f in forms if f.gender == 'Perempuan'])
+        }
+        
+        # Calculate track distribution
+        track_stats = {
+            'achievement': len([f for f in forms if f.registration_track == 'achievement']),
+            'affirmation': len([f for f in forms if f.registration_track == 'affirmation']),
+            'domicile': len([f for f in forms if f.registration_track == 'domicile'])
+        }
+        
+        # Get recent forms
+        recent_forms = sorted(forms, key=lambda x: x.timestamp, reverse=True)[:5]
+        
+        return render_template(
+            'dashboard_admin.html',
+            forms=forms,
+            status_stats=status_stats,
+            payment_stats=payment_stats,
+            gender_stats=gender_stats,
+            track_stats=track_stats,
+            recent_forms=recent_forms,
+            datetime=datetime
+        )
+        
+    # For regular users
+    form = Form.query.filter_by(user_id=current_user.id).first()
+    if not form:
+        form = Form(user_id=current_user.id)
+        db.session.add(form)
+        db.session.commit()
+        
+    # Create forms as needed
+    admission_form = None if form else AdmissionForm()
+    payment_form = PaymentForm() if form and form.status == 'accepted' and form.payment_status != 'verified' else None
+    
     return render_template(
         'dashboard_user.html',
-        form=user_form,
-        admission_form=AdmissionForm(),
-        payment_form=PaymentForm(),
-        completion_percentage=profile_completion,
-        doc_completion=doc_completion,
-        progress_class=progress_class,
-        status_message=get_status_message(status),
-        required_documents=required_documents
+        form=form,
+        admission_form=admission_form,
+        payment_form=payment_form
     )
 
 def get_status_message(status):
@@ -512,3 +544,13 @@ def update_personal_info():
             'success': False, 
             'message': f'Error updating information: {str(e)}'
         }), 500
+
+@main.route('/admin/table')
+@login_required
+def table_view():
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    forms = Form.query.all()
+    return render_template('Simple_Table_admin.html', forms=forms)

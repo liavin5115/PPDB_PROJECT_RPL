@@ -314,6 +314,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Handle photo modal views
+    document.querySelectorAll('.view-doc-btn[data-doc-type="photo"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const formId = document.getElementById('formId').value;
+            const modalId = `fileModal_photo`;
+            const modal = document.getElementById(modalId);
+
+            if (modal) {
+                // Disable animations temporarily
+                modal.style.transition = 'none';
+                modal.style.transform = 'translateZ(0)';
+                modal.style.backfaceVisibility = 'hidden';
+                modal.style.perspective = '1000';
+                
+                const img = modal.querySelector('img');
+                if (img) {
+                    img.style.opacity = '0';
+                    img.style.transition = 'opacity 0.2s ease-out';
+                    img.onload = function() {
+                        img.style.opacity = '1';
+                    };
+                }
+
+                const modalInstance = new bootstrap.Modal(modal, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                modalInstance.show();
+
+                // Re-enable animations after modal is shown
+                setTimeout(() => {
+                    modal.style.transition = '';
+                }, 100);
+            }
+        });
+    });
 });
 
 function updateDocument(docType, formData, inputElement) {

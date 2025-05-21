@@ -1,0 +1,254 @@
+/* Dark Theme Variables */
+:root[data-bs-theme="dark"] {
+    /* Base Colors */
+    --bs-body-bg: #121212;
+    --bs-body-color: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --card-border: #2d2d2d;
+    --input-bg: #2a2a2a;
+    --hover-bg: #2c2c2c;
+    
+    /* Custom Colors */
+    --accent-primary: #3498db;
+    --accent-success: #2ecc71;
+    --accent-warning: #f1c40f;
+    --accent-danger: #e74c3c;
+    
+    /* Card and Container Colors */
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    transition: background-color 0.3s ease;
+}
+
+/* Card Styles */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: var(--input-bg);
+    border-color: var(--accent-primary);
+}
+
+/* Document Item */
+.doc-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.doc-status {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+}
+
+.doc-status.uploaded {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.doc-status.pending {
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #f1c40f;
+}
+
+/* Progress Bar */
+.progress {
+    background-color: var(--input-bg);
+    height: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Payment Section */
+.payment-info {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.payment-amount {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: rotate(30deg);
+}
+
+/* Toast Notifications */
+.toast {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+}
+
+/* QR Code Section */
+.qr-code-section {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.qr-code-image {
+    max-width: 200px;
+    margin: 1rem auto;
+}
+
+/* Status Steps */
+.status-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.status-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    position: relative;
+}
+
+.status-step.completed .status-icon {
+    background-color: var(--accent-success);
+    color: white;
+}
+
+.status-step.active .status-icon {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.status-step.rejected .status-icon {
+    background-color: var(--accent-danger);
+    color: white;
+}
+
+/* Table Styles */
+[data-bs-theme="dark"] .table {
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .table > :not(caption) > * > * {
+    background-color: var(--card-bg);
+    border-bottom-color: var(--card-border);
+}
+
+[data-bs-theme="dark"] .table-hover tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+/* DataTables Specific Dark Mode Styles */
+[data-bs-theme="dark"] .dataTables_wrapper {
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .dataTables_length select,
+[data-bs-theme="dark"] .dataTables_filter input {
+    background-color: var(--input-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .page-item.active .page-link {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .page-item.disabled .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: #6c757d;
+}
+
+/* Modal Dark Mode */
+[data-bs-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+[data-bs-theme="dark"] .modal-header {
+    border-bottom-color: var(--card-border);
+}
+
+[data-bs-theme="dark"] .modal-footer {
+    border-top-color: var(--card-border);
+}
+
+/* Charts Dark Mode */
+[data-bs-theme="dark"] .chart-container canvas {
+    background-color: var(--card-bg);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .doc-item {
+        flex-direction: column;
+    }
+    
+    .doc-actions {
+        margin-top: 1rem;
+    }
+}

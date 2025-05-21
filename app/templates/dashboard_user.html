@@ -221,6 +221,7 @@
                             </div>
                         </div>
 
+
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0">Informasi Pribadi</h5>
@@ -261,139 +262,129 @@
                             </div>
                         </div>
 
-                        <!-- Documents -->
+                        <!-- Document Management Card -->
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Documents</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-file-earmark-text text-primary me-2"></i>Dokumen
+                                </h5>
                             </div>
                             <div class="card-body">
                                 <!-- Add hidden form ID -->
-                                <input type="hidden" id="formId" value="{{ form.id }}">
+                                <input type="hidden" id="formId" value="{{ form.id if form else '' }}">
                                 
                                 <div class="document-grid">
                                     {% set documents = [
-                                        ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data),
-                                        ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data),
-                                        ('family_card', 'Kartu Keluarga', form.family_card_data),
-                                        ('report_card', 'Rapor', form.report_card_data),
-                                        ('photo', 'Pas Foto', form.photo_data)
+                                        ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data if form else None, 'bi-file-earmark-text'),
+                                        ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data if form else None, 'bi-file-earmark-person'),
+                                        ('family_card', 'Kartu Keluarga', form.family_card_data if form else None, 'bi-file-earmark-spreadsheet'),
+                                        ('report_card', 'Rapor', form.report_card_data if form else None, 'bi-file-earmark-ruled'),
+                                        ('photo', 'Pas Foto', form.photo_data if form else None, 'bi-person-square')
                                     ] %}
                                     
-                                    {% for doc_id, doc_name, doc_data in documents %}
-                                    <div class="document-item mb-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">{{ doc_name }}</h6>
-                                                <small class="text-muted doc-status" data-doc-type="{{ doc_id }}">
-                                                    {% if doc_data %}
-                                                        Uploaded: {{ form[doc_id + '_filename'] }}
-                                                    {% else %}
-                                                        Not uploaded
-                                                    {% endif %}
-                                                </small>
+                                    {% for doc_id, doc_name, doc_data, icon in documents %}
+                                    <div class="document-item card border mb-3">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="document-icon me-3">
+                                                    <i class="bi {{ icon }} fs-4 text-{{ 'success' if doc_data else 'secondary' }}"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ doc_name }}</h6>
+                                                    <small class="text-muted doc-status" data-doc-type="{{ doc_id }}">
+                                                        {% if doc_data %}
+                                                            <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                                            {{ form[doc_id + '_filename'] }}
+                                                        {% else %}
+                                                            <i class="bi bi-exclamation-circle-fill text-warning me-1"></i>
+                                                            Belum diunggah
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
                                             </div>
-                                            <div class="btn-group">
+                                            
+                                            <div class="document-actions">
                                                 {% if doc_data %}
-                                                    <button type="button" class="btn btn-sm btn-outline-primary view-doc-btn"
+                                                <div class="btn-group w-100">                                                    <button type="button" class="btn btn-outline-primary btn-sm flex-grow-1 view-doc-btn" 
                                                             data-doc-type="{{ doc_id }}">
-                                                        <i class="bi bi-eye"></i> View
+                                                        <i class="bi bi-eye me-1"></i>Lihat
                                                     </button>
-                                                {% endif %}
-                                                <button type="button" class="btn btn-sm btn-outline-secondary upload-doc-btn"
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm upload-doc-btn"
+                                                            data-doc-type="{{ doc_id }}">
+                                                        <i class="bi bi-arrow-repeat me-1"></i>Update
+                                                    </button>
+                                                </div>
+                                                {% else %}
+                                                <button type="button" class="btn btn-primary btn-sm w-100 upload-doc-btn"
                                                         data-doc-type="{{ doc_id }}">
-                                                    <i class="bi bi-upload"></i> Update
+                                                    <i class="bi bi-upload me-1"></i>Upload
                                                 </button>
+                                                {% endif %}
                                             </div>
                                         </div>
+                                        
                                         <input type="file" class="d-none document-input" 
                                                data-doc-type="{{ doc_id }}"
                                                accept=".pdf,.jpg,.jpeg,.png">
                                     </div>
                                     {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Add file viewer modals -->
-                        {% for doc_id, doc_name, doc_data in documents %}
-                            {% if doc_data %}
-                            <div class="modal fade" id="fileModal_{{ doc_id }}" tabindex="-1" aria-labelledby="fileModalLabel_{{ doc_id }}" aria-hidden="true" data-bs-backdrop="static">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="fileModalLabel_{{ doc_id }}">{{ doc_name }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body p-0">
-                                            {% if 'image' in form[doc_id + '_mimetype'] %}
-                                                <img src="data:{{ form[doc_id + '_mimetype'] }};base64,{{ doc_data|b64encode }}"
-                                                     class="img-fluid w-100"
-                                                     alt="{{ doc_name }}"
-                                                     loading="lazy">
-                                            {% elif 'pdf' in form[doc_id + '_mimetype'] %}
-                                                <embed src="data:{{ form[doc_id + '_mimetype'] }};base64,{{ doc_data|b64encode }}"
-                                                       type="application/pdf"
-                                                       width="100%"
-                                                       height="600px">
-                                            {% else %}
-                                                <div class="alert alert-warning m-3">
-                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                                    Format file tidak didukung untuk pratinjau
+                                    
+                                    {% if form and form.registration_track %}
+                                    <!-- Track-specific Document -->
+                                    <div class="document-item card border mb-3">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="document-icon me-3">
+                                                    <i class="bi bi-file-earmark-check fs-4 text-{{ 'success' if form.track_document_data else 'secondary' }}"></i>
                                                 </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="modal-footer">
-                                            <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_id) }}" 
-                                               class="btn btn-primary">
-                                                <i class="bi bi-download me-2"></i>Download
-                                            </a>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-
-                        <!-- Required Documents -->
-                        {% if form %}
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">Required Documents</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="document-list">
-                                        {% set documents = [
-                                            ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data),
-                                            ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data),
-                                            ('family_card', 'Kartu Keluarga', form.family_card_data),
-                                            ('report_card', 'Rapor', form.report_card_data),
-                                            ('photo', 'Pas Foto', form.photo_data)
-                                        ] %}
-                                        
-                                        {% for doc_id, doc_name, doc_data in documents %}
-                                            <div class="document-item d-flex align-items-center justify-content-between mb-3 p-2 border rounded">
-                                                <div>
-                                                    <h6 class="mb-0">{{ doc_name }}</h6>
-                                                    <small class="text-{{ 'success' if doc_data else 'warning' }}">
-                                                        {% if doc_data %}
-                                                            <i class="bi bi-check-circle-fill"></i> Uploaded
-                                                            <button type="button" 
-                                                                    class="btn btn-sm btn-link view-doc-btn" 
-                                                                    data-doc-type="{{ doc_id }}">
-                                                                <i class="bi bi-eye-fill"></i> View
-                                                            </button>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">Dokumen {{ 
+                                                        'Prestasi' if form.registration_track == 'achievement' 
+                                                        else 'Afirmasi' if form.registration_track == 'affirmation'
+                                                        else 'Zonasi' if form.registration_track == 'domicile'
+                                                        else '' }}</h6>
+                                                    <small class="text-muted doc-status" data-doc-type="track_document">
+                                                        {% if form.track_document_data %}
+                                                            <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                                            {{ form.track_document_filename }}
                                                         {% else %}
-                                                            <i class="bi bi-exclamation-circle-fill"></i> Not uploaded
+                                                            <i class="bi bi-exclamation-circle-fill text-warning me-1"></i>
+                                                            Belum diunggah
                                                         {% endif %}
                                                     </small>
                                                 </div>
                                             </div>
-                                        {% endfor %}
+                                            
+                                            <div class="document-actions">
+                                                {% if form.track_document_data %}
+                                                <div class="btn-group w-100">
+                                                    <button type="button" class="btn btn-outline-primary btn-sm flex-grow-1 view-doc-btn" 
+                                                            data-doc-type="track_document" data-bs-toggle="modal" 
+                                                            data-bs-target="#fileModal_track_document">
+                                                        <i class="bi bi-eye me-1"></i>Lihat
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm upload-doc-btn"
+                                                            data-doc-type="track_document">
+                                                        <i class="bi bi-arrow-repeat me-1"></i>Update
+                                                    </button>
+                                                </div>
+                                                {% else %}
+                                                <button type="button" class="btn btn-primary btn-sm w-100 upload-doc-btn"
+                                                        data-doc-type="track_document">
+                                                    <i class="bi bi-upload me-1"></i>Upload
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <input type="file" class="d-none document-input" 
+                                               data-doc-type="track_document"
+                                               accept=".pdf,.jpg,.jpeg,.png">
                                     </div>
+                                    {% endif %}
                                 </div>
                             </div>
-                        {% endif %}
+                        </div>
 
                         <!-- Registration Track -->
                         {% if form.registration_track %}
@@ -421,137 +412,295 @@
 
                         <!-- Payment Section -->
                         {% if form.status == 'accepted' %}
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Informasi Pembayaran</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Status Pembayaran:</strong><br>
-                                        {% if form.payment_status == 'unsubmitted' %}
-                                            <span class="badge bg-warning">Belum Dibayar</span>
-                                        {% elif form.payment_status == 'submitted' %}
-                                            <span class="badge bg-info">Menunggu Verifikasi</span>
-                                        {% elif form.payment_status == 'verified' %}
-                                            <span class="badge bg-success">Terverifikasi</span>
-                                        {% endif %}
-                                    </p>
-                                    
-                                    {% if form.payment_date %}
-                                        <p><strong>Tanggal Pembayaran:</strong><br>
-                                            {{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}
-                                        </p>
-                                    {% endif %}
+            <!-- Payment Information Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-credit-card text-primary me-2"></i>Informasi Pembayaran
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Payment Status -->
+                    <div class="payment-status-section mb-4">
+                        <h6 class="text-muted mb-3">Status Pembayaran</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="status-badge me-3">
+                                <span class="badge bg-{{ 'success' if form.payment_status == 'verified' 
+                                                       else 'warning' if form.payment_status == 'submitted'
+                                                       else 'secondary' }} p-2">
+                                    <i class="bi bi-{{ 'check-circle-fill' if form.payment_status == 'verified'
+                                                     else 'hourglass-split' if form.payment_status == 'submitted'
+                                                     else 'wallet' }} me-1"></i>
+                                    {{ 'Terverifikasi' if form.payment_status == 'verified'
+                                       else 'Menunggu Verifikasi' if form.payment_status == 'submitted'
+                                       else 'Belum Dibayar' }}
+                                </span>
+                            </div>
+                            {% if form.payment_date %}
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
 
-                                    {% if form.payment_status == 'unsubmitted' %}
-                                        <form method="POST" action="{{ url_for('main.submit_payment') }}" enctype="multipart/form-data">
-                                            {{ payment_form.hidden_tag() }}
-                                            <div class="mb-3">
-                                                <label class="form-label">Upload Bukti Pembayaran</label>
-                                                {{ payment_form.payment_proof(class="form-control") }}
-                                                <small class="text-muted">Upload bukti transfer/pembayaran (jpg, png, pdf)</small>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Kirim Bukti Pembayaran</button>
-                                        </form>
-                                    {% endif %}
+                    <!-- Payment Details -->
+                    <div class="payment-details-section mb-4">
+                        <h6 class="text-muted mb-3">Rincian Biaya</h6>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Biaya Pendaftaran</span>
+                                    <span>Rp7.000.000</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>SPP (1 Bulan)</span>
+                                    <span>Rp500.000</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total Pembayaran</strong>
+                                    <strong class="text-primary">Rp7.500.000</strong>
                                 </div>
                             </div>
-                        {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="payment-methods-section">
+                        <h6 class="text-muted mb-3">Metode Pembayaran</h6>
+                        <div class="row g-3">
+                            <!-- Bank Transfer -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">
+                                            <i class="bi bi-bank me-2"></i>Transfer Bank
+                                        </h6>
+                                        <div class="bank-info">
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block mb-1">Bank</small>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">Bank Mandiri</span>
+                                                    <button class="btn btn-sm btn-link p-0 copy-button" 
+                                                            data-clipboard-text="Bank Mandiri">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block mb-1">Nomor Rekening</small>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">1234567890</span>
+                                                    <button class="btn btn-sm btn-link p-0 copy-button" 
+                                                            data-clipboard-text="1234567890">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block mb-1">Atas Nama</small>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">SMKN 1 BEKASI</span>
+                                                    <button class="btn btn-sm btn-link p-0 copy-button" 
+                                                            data-clipboard-text="SMKN 1 BEKASI">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- QRIS -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h6 class="mb-3">
+                                            <i class="bi bi-qr-code me-2"></i>QRIS
+                                        </h6>
+                                        <img src="{{ url_for('static', filename='img/qr-code.png') }}" 
+                                             alt="QRIS Payment" class="img-fluid mb-3" 
+                                             style="max-width: 150px;">
+                                        <p class="small text-muted mb-0">
+                                            Scan untuk pembayaran instan via QRIS<br>
+                                            (OVO, GoPay, DANA, dll)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if form.payment_status == 'unsubmitted' %}
+                    <!-- Payment Proof Upload -->
+                    <div class="payment-upload-section mt-4">
+                        <h6 class="text-muted mb-3">Upload Bukti Pembayaran</h6>
+                        <form method="POST" action="{{ url_for('main.submit_payment') }}" 
+                              enctype="multipart/form-data">
+                            {{ payment_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ payment_form.payment_proof(class="form-control") }}
+                                <small class="text-muted">Format yang didukung: JPG, PNG, PDF</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-cloud-upload me-2"></i>Kirim Bukti Pembayaran
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
                     </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <!-- Notifications Card -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title mb-0">Notifikasi</h5>
-                    <span class="badge bg-primary rounded-pill">{{ notifications|length }}</span>
+    </div>    <div class="col-md-4">
+        <!-- Required Documents Card -->
+        {% if form %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Required Documents</h5>
                 </div>
-                <div class="notifications-box">
-                    {% if form %}
-                        {% if form.status == 'pending' %}
-                            <div class="notification-item">
-                                <div class="notification-icon bg-info">
-                                    <i class="bi bi-hourglass-split"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <h6 class="notification-title">Menunggu Verifikasi</h6>
-                                    <p class="notification-text">Dokumen Anda sedang dalam proses verifikasi</p>
-                                    <small class="notification-time">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
+                <div class="card-body">
+                    <div class="document-list">
+                        {% set documents = [
+                            ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data),
+                            ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data),
+                            ('family_card', 'Kartu Keluarga', form.family_card_data),
+                            ('report_card', 'Rapor', form.report_card_data),
+                            ('photo', 'Pas Foto', form.photo_data)
+                        ] %}
+                        
+                        {% for doc_id, doc_name, doc_data in documents %}
+                            <div class="document-item d-flex align-items-center justify-content-between mb-3 p-2 border rounded">
+                                <div>
+                                    <h6 class="mb-0">{{ doc_name }}</h6>
+                                    <small class="text-{{ 'success' if doc_data else 'warning' }}">
+                                        {% if doc_data %}
+                                            <i class="bi bi-check-circle-fill"></i> Uploaded
+
+                                            </button>
+                                        {% else %}
+                                            <i class="bi bi-exclamation-circle-fill"></i> Not uploaded
+                                        {% endif %}
+                                    </small>
                                 </div>
                             </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Notifications Card -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bell text-primary me-2"></i>Notifikasi
+                </h5>
+                {% if notifications %}
+                <span class="badge bg-primary rounded-pill">{{ notifications|length }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <div class="notifications-list">
+                    {% if form %}
+                        {% if form.status == 'pending' %}
+                        <div class="notification-item d-flex p-3 border-bottom">
+                            <div class="notification-icon bg-info me-3">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title mb-1">Menunggu Verifikasi</h6>
+                                <p class="notification-text text-muted small mb-1">Dokumen Anda sedang dalam proses verifikasi</p>
+                                <small class="notification-time text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
                         {% endif %}
 
                         {% if form.status == 'accepted' %}
-                            <div class="notification-item">
-                                <div class="notification-icon bg-success">
-                                    <i class="bi bi-check-circle-fill"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <h6 class="notification-title">Pendaftaran Diterima</h6>
-                                    <p class="notification-text">Selamat! Pendaftaran Anda telah diterima</p>
-                                    <small class="notification-time">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
-                                </div>
+                        <div class="notification-item d-flex p-3 border-bottom">
+                            <div class="notification-icon bg-success me-3">
+                                <i class="bi bi-check-circle-fill"></i>
                             </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title mb-1">Pendaftaran Diterima</h6>
+                                <p class="notification-text text-muted small mb-1">Selamat! Pendaftaran Anda telah diterima</p>
+                                <small class="notification-time text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
 
-                            {% if form.payment_status == 'unsubmitted' %}
-                                <div class="notification-item">
-                                    <div class="notification-icon bg-warning">
-                                        <i class="bi bi-credit-card"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <h6 class="notification-title">Pembayaran Diperlukan</h6>
-                                        <p class="notification-text">Silakan melakukan pembayaran biaya pendaftaran</p>
-                                    </div>
-                                </div>
-                            {% endif %}
+                        {% if form.payment_status == 'unsubmitted' %}
+                        <div class="notification-item d-flex p-3 border-bottom">
+                            <div class="notification-icon bg-warning me-3">
+                                <i class="bi bi-credit-card"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title mb-1">Pembayaran Diperlukan</h6>
+                                <p class="notification-text text-muted small mb-1">Silakan melakukan pembayaran biaya pendaftaran</p>
+                                <small class="notification-time text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
 
-                            {% if form.payment_status == 'submitted' %}
-                                <div class="notification-item">
-                                    <div class="notification-icon bg-info">
-                                        <i class="bi bi-hourglass-split"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <h6 class="notification-title">Verifikasi Pembayaran</h6>
-                                        <p class="notification-text">Pembayaran Anda sedang diverifikasi</p>
-                                        <small class="notification-time">{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</small>
-                                    </div>
-                                </div>
-                            {% endif %}
+                        {% if form.payment_status == 'submitted' %}
+                        <div class="notification-item d-flex p-3 border-bottom">
+                            <div class="notification-icon bg-info me-3">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title mb-1">Verifikasi Pembayaran</h6>
+                                <p class="notification-text text-muted small mb-1">Pembayaran Anda sedang diverifikasi</p>
+                                <small class="notification-time text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
 
-                            {% if form.payment_status == 'verified' %}
-                                <div class="notification-item">
-                                    <div class="notification-icon bg-success">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <h6 class="notification-title">Pembayaran Terverifikasi</h6>
-                                        <p class="notification-text">Pembayaran Anda telah dikonfirmasi</p>
-                                        <small class="notification-time">{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}</small>
-                                    </div>
-                                </div>
-                            {% endif %}
+                        {% if form.payment_status == 'verified' %}
+                        <div class="notification-item d-flex p-3 border-bottom">
+                            <div class="notification-icon bg-success me-3">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title mb-1">Pembayaran Terverifikasi</h6>
+                                <p class="notification-text text-muted small mb-1">Pembayaran Anda telah dikonfirmasi</p>
+                                <small class="notification-time text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ form.payment_date.strftime('%d-%m-%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
                         {% endif %}
 
                         {% if form.status == 'rejected' %}
-                            <div class="notification-item">
-                                <div class="notification-icon bg-danger">
-                                    <i class="bi bi-x-circle-fill"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <h6 class="notification-title">Pendaftaran Ditolak</h6>
-                                    <p class="notification-text">Maaf, pendaftaran Anda tidak dapat diterima</p>
-                                    <small class="notification-time">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</small>
-                                </div>
+                        <div class="notification-item d-flex p-3 border-bottom">
+                            <div class="notification-icon bg-danger me-3">
+                                <i class="bi bi-x-circle-fill"></i>
                             </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title mb-1">Pendaftaran Ditolak</h6>
+                                <p class="notification-text text-muted small mb-1">Maaf, pendaftaran Anda tidak dapat diterima</p>
+                                <small class="notification-time text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
                         {% endif %}
                     {% else %}
-                        <div class="text-center text-muted py-3">
-                            <i class="bi bi-bell-slash fs-4 mb-2"></i>
-                            <p>Belum ada notifikasi</p>
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-bell-slash fs-4 mb-2 d-block"></i>
+                            <p class="mb-0">Belum ada notifikasi</p>
                         </div>
                     {% endif %}
                 </div>
@@ -692,77 +841,17 @@
         </div>
 
         <!-- Payment Information Section -->
-        <div class="payment-info-section">
-            <!-- Payment Status -->
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h5 class="mb-0">Payment Information</h5>
-                <div class="payment-status {{ form.payment_status if form and form.payment_status else 'unpaid' }}">
-                    <i class="bi {{ 'bi-check-circle-fill' if form.payment_status == 'verified'
-                                else 'bi-hourglass-split' if form.payment_status == 'submitted'
-                                else 'bi-exclamation-circle-fill' }}"></i>
-                    <span>{{ 'Paid & Verified' if form.payment_status == 'verified'
-                            else 'Pending Verification' if form.payment_status == 'submitted'
-                            else 'Unpaid' }}</span>
-                </div>
-            </div>
+        
 
             <!-- Payment Amount Section -->
-            <div class="payment-amount-card mb-4">
-                <h6 class="mb-3">Payment Details</h6>
-                <div class="payment-breakdown">
-                    <div class="payment-item d-flex justify-content-between align-items-center mb-2">
-                        <span>Registration Fee</span>
-                        <span>Rp7.000.000</span>
-                    </div>
-                    <div class="payment-item d-flex justify-content-between align-items-center mb-2">
-                        <span>Monthly Tuition (SPP)</span>
-                        <span>Rp500.000</span>
-                    </div>
-                    <div class="payment-total d-flex justify-content-between align-items-center mt-3">
-                        <span class="fw-bold">Total Payment Due</span>
-                        <span class="fw-bold text-primary fs-5">Rp7.500.000</span>
-                    </div>
-                </div>
-            </div>
+          
 
             <!-- Bank Transfer Details -->
-            <div class="bank-details">
-                <h6 class="mb-3">Bank Transfer Details</h6>
-                <div class="bank-detail-item">
-                    <span class="bank-detail-label">Bank Name</span>
-                    <div class="bank-detail-value">
-                        <span>Bank Mandiri</span>
-                        <button class="copy-button" data-clipboard-text="Bank Mandiri">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="bank-detail-item">
-                    <span class="bank-detail-label">Account Number</span>
-                    <div class="bank-detail-value">
-                        <span>1234567890</span>
-                        <button class="copy-button" data-clipboard-text="1234567890">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="bank-detail-item">
-                    <span class="bank-detail-label">Account Holder</span>
-                    <div class="bank-detail-value">
-                        <span>SMKN 1 BEKASI</span>
-                        <button class="copy-button" data-clipboard-text="SMKN 1 BEKASI">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            
+
 
             <!-- QR Code Section -->
-            <div class="qr-code-section">
-                <h6>Scan QR Code to Pay Instantly</h6>
-                <img src="{{ url_for('static', filename='img/qr-code.png') }}" alt="Payment QR Code" class="qr-code-image">
-                <p class="text-muted mb-0">Support QRIS, OVO, GoPay, and other e-wallets</p>
-            </div>
+
 
 
             <!-- Payment History -->
@@ -771,6 +860,264 @@
     </div>
 </div>
 {% endblock %}
+
+<!-- Registration Status and Payment Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-clipboard2-check text-primary me-2"></i>Status Pendaftaran
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if form %}
+            <!-- Progress Tracker -->
+            <div class="progress-tracker mb-4">
+                <div class="progress" style="height: 10px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated 
+                              {{ 'bg-success' if form.status == 'accepted' }}
+                              {{ 'bg-danger' if form.status == 'rejected' }}
+                              {{ 'bg-info' if form.status == 'pending' }}" 
+                         role="progressbar" 
+                         style="width: {{ form.progress_percentage }}%"
+                         aria-valuenow="{{ form.progress_percentage }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small class="text-muted">Progress Kelengkapan</small>
+                    <small class="text-muted">{{ form.progress_percentage }}%</small>
+                </div>
+            </div>
+
+            <!-- Status Timeline -->
+            <div class="status-timeline mb-4">
+                <!-- Registration Submitted -->
+                <div class="timeline-item {{ 'completed' if form }}">
+                    <div class="timeline-icon">
+                        <i class="bi bi-send-check-fill"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Pendaftaran Terkirim</h6>
+                        <p class="small text-muted mb-0">{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</p>
+                    </div>
+                </div>
+
+                <!-- Document Verification -->
+                <div class="timeline-item {{ 'completed' if form.status in ['accepted', 'rejected'] }} 
+                                        {{ 'active' if form.status == 'pending' }}
+                                        {{ 'rejected' if form.status == 'rejected' }}">
+                    <div class="timeline-icon">
+                        <i class="bi {{ 'bi-check-circle-fill' if form.status == 'accepted' 
+                                     else 'bi-x-circle-fill' if form.status == 'rejected'
+                                     else 'bi-hourglass-split' }}"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Verifikasi Berkas</h6>
+                        <p class="small text-muted mb-0">
+                            {% if form.status == 'pending' %}
+                                Sedang diverifikasi
+                            {% elif form.status == 'accepted' %}
+                                Berkas diterima
+                            {% elif form.status == 'rejected' %}
+                                Berkas ditolak
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Payment Status -->
+                {% if form.status == 'accepted' %}
+                <div class="timeline-item {{ 'completed' if form.payment_status == 'verified' }}
+                                        {{ 'active' if form.payment_status == 'submitted' }}">
+                    <div class="timeline-icon">
+                        <i class="bi {{ 'bi-check-circle-fill' if form.payment_status == 'verified'
+                                     else 'bi-credit-card' if form.payment_status == 'submitted'
+                                     else 'bi-wallet' }}"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Pembayaran</h6>
+                        <p class="small text-muted mb-0">
+                            {% if form.payment_status == 'unsubmitted' %}
+                                Menunggu pembayaran
+                            {% elif form.payment_status == 'submitted' %}
+                                Menunggu verifikasi
+                            {% elif form.payment_status == 'verified' %}
+                                Pembayaran terverifikasi
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Registration Complete -->
+                {% if form.payment_status == 'verified' %}
+                <div class="timeline-item completed">
+                    <div class="timeline-icon">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Pendaftaran Selesai</h6>
+                        <p class="small text-muted mb-0">Selamat! Anda telah diterima</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Current Status Alert -->
+            <div class="alert alert-{{ 'success' if form.status == 'accepted' 
+                                    else 'danger' if form.status == 'rejected' 
+                                    else 'info' }} mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi {{ 'bi-check-circle-fill' if form.status == 'accepted' 
+                                 else 'bi-x-circle-fill' if form.status == 'rejected'
+                                 else 'bi-info-circle-fill' }} me-2"></i>
+                    <div>
+                        <strong>Status Saat Ini:</strong><br>
+                        {% if form.status == 'pending' %}
+                            Menunggu Verifikasi
+                        {% elif form.status == 'accepted' %}
+                            Diterima
+                        {% elif form.status == 'rejected' %}
+                            Ditolak
+                        {% endif %}
+                        
+                        {% if form.payment_status and form.status == 'accepted' %}
+                            <br>
+                            <strong>Status Pembayaran:</strong><br>
+                            {% if form.payment_status == 'unsubmitted' %}
+                                Belum Dibayar
+                            {% elif form.payment_status == 'submitted' %}
+                                Menunggu Verifikasi
+                            {% elif form.payment_status == 'verified' %}
+                                Terverifikasi
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if form.status == 'accepted' and form.payment_status != 'verified' %}
+            <!-- Payment Section -->
+            <div class="payment-section">
+                <h6 class="mb-3">Informasi Pembayaran</h6>
+                
+                <!-- Payment Amount Card -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <div class="payment-details">
+                            <div class="payment-item d-flex justify-content-between mb-2">
+                                <span class="text-muted">Biaya Pendaftaran</span>
+                                <span>Rp7.000.000</span>
+                            </div>
+                            <div class="payment-item d-flex justify-content-between mb-2">
+                                <span class="text-muted">SPP (1 Bulan)</span>
+                                <span>Rp500.000</span>
+                            </div>
+                            <hr>
+                            <div class="payment-total d-flex justify-content-between">
+                                <strong>Total Pembayaran</strong>
+                                <strong class="text-primary">Rp7.500.000</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Cards -->
+                <div class="row g-3 mb-4">
+                    <!-- Bank Transfer -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-bank me-2"></i>Transfer Bank
+                                </h6>
+                                <div class="bank-details mt-3">
+                                    <div class="bank-item mb-2">
+                                        <small class="text-muted d-block">Bank</small>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">Bank Mandiri</span>
+                                            <button class="btn btn-sm btn-link p-0 copy-button" 
+                                                    data-clipboard-text="Bank Mandiri">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bank-item mb-2">
+                                        <small class="text-muted d-block">Nomor Rekening</small>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">1234567890</span>
+                                            <button class="btn btn-sm btn-link p-0 copy-button" 
+                                                    data-clipboard-text="1234567890">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bank-item">
+                                        <small class="text-muted d-block">Atas Nama</small>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">SMKN 1 BEKASI</span>
+                                            <button class="btn btn-sm btn-link p-0 copy-button" 
+                                                    data-clipboard-text="SMKN 1 BEKASI">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QRIS -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">
+                                    <i class="bi bi-qr-code me-2"></i>QRIS
+                                </h6>
+                                <div class="qr-section mt-3">
+                                    <img src="{{ url_for('static', filename='img/qr-code.png') }}" 
+                                         alt="QRIS Payment" class="img-fluid mb-2" 
+                                         style="max-width: 150px;">
+                                    <p class="small text-muted mb-0">
+                                        Scan untuk pembayaran instan via QRIS<br>
+                                        (OVO, GoPay, DANA, dll)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if form.payment_status == 'unsubmitted' %}
+                <!-- Payment Upload Form -->
+                <div class="upload-payment-proof">
+                    <form method="POST" action="{{ url_for('main.submit_payment') }}" 
+                          enctype="multipart/form-data" class="card">
+                        <div class="card-body">
+                            {{ payment_form.hidden_tag() }}
+                            <div class="mb-3">
+                                <label class="form-label">Upload Bukti Pembayaran</label>
+                                {{ payment_form.payment_proof(class="form-control") }}
+                                <small class="text-muted">Format yang didukung: JPG, PNG, PDF</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-cloud-upload me-2"></i>Kirim Bukti Pembayaran
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-file-earmark-text text-muted display-4"></i>
+                <p class="mt-3">Belum ada pendaftaran yang diajukan.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
 
 <!-- Photo Modal -->
 <div class="modal fade" id="photoModal{{ form.id }}" tabindex="-1">
@@ -796,93 +1143,35 @@
     </div>
 </div>
 
-<!-- Add this to your scripts section -->
+{% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize clipboard.js
-    new ClipboardJS('.copy-button');
+    new ClipboardJS('.copy-button').on('success', function(e) {
+        const button = e.trigger;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check"></i>';
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+        }, 1000);
+    });
 
-    // Store currently open modal
-    let currentModal = null;
-
-    // View document button click handler 
+    // Document viewer functionality
     document.querySelectorAll('.view-doc-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // Prevent event bubbling
-            
-            // Close current modal if exists
-            if (currentModal) {
-                currentModal.hide();
-            }
-
             const docType = this.dataset.docType;
-            const modalId = `fileModal_${docType}`;
+            const formId = document.getElementById('formId').value;
+            const modalId = `fileModal${formId}_${docType}`;
             const modal = document.getElementById(modalId);
-
+            
             if (modal) {
-                // Disable animations and transitions temporarily
-                modal.style.transition = 'none';
-                modal.querySelectorAll('*').forEach(el => el.style.transition = 'none');
-                
-                const modalInstance = new bootstrap.Modal(modal, {
-                    backdrop: 'static',
-                    keyboard: false
-                });
-                
-                // Show modal without animation
+                const modalInstance = new bootstrap.Modal(modal);
                 modalInstance.show();
-                currentModal = modalInstance;
-
-                // Re-enable animations after modal is shown
-                setTimeout(() => {
-                    modal.style.transition = '';
-                    modal.querySelectorAll('*').for each(el => el.style.transition = '';
-                }, 300);
-
-                // Handle modal hidden event
-                modal.addEventListener('hidden.bs.modal', function() {
-                    currentModal = null;
-                });
             }
-        });
-    });
-
-    // Other modal handling
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.addEventListener('hide.bs.modal', function() {
-            // Clean up when modal is closed
-            currentModal = null;
-        });
-    });
-
-    // Document inputs
-    const fileInput = document.querySelector('.file-upload-input');
-    const fileLabel = document.querySelector('.file-upload-label span');
-  
-    if (fileInput && fileLabel) {
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                fileLabel.textContent = this.files[0].name;
-            } else {
-                fileLabel.textContent = 'Choose file...';
-            }
-        });
-    }
-  
-    // Copy button feedback
-    document.querySelectorAll('.copy-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            icon.classList.remove('bi-clipboard');
-            icon.classList.add('bi-clipboard-check');
-            setTimeout(() => {
-                icon.classList.remove('bi-clipboard-check');
-                icon.classList.add('bi-clipboard');
-            }, 1500);
         });
     });
 });
 </script>
+{% endblock %}

@@ -1,0 +1,199 @@
+:root {
+    /* Base Colors */
+    --bs-dark: #121212;
+    --bs-dark-rgb: 18, 18, 18;
+    --bs-body-bg: #ffffff;
+    --bs-body-color: #212529;
+    
+    /* Accent Colors */
+    --accent-primary: #0d6efd;
+    --accent-secondary: #198754;
+    --accent-warning: #ffc107;
+    --accent-danger: #dc3545;
+    
+    /* Card and Container Colors */
+    --card-bg: #ffffff;
+    --card-border: #e9ecef;
+    --input-bg: #ffffff;
+    --hover-bg: #f8f9fa;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    
+    /* Typography */
+    --font-family-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-family-headers: 'Poppins', var(--font-family-sans-serif);
+}
+
+/* Base Styles */
+body {
+    font-family: var(--font-family-sans-serif);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    transition: background-color 0.3s ease;
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+    border-radius: 8px;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--input-bg);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+    color: var(--bs-body-color);
+}
+
+/* Progress Bars */
+.progress {
+    background-color: var(--input-bg);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Document Upload Section */
+.doc-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.doc-item:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--accent-primary);
+}
+
+.doc-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.doc-status.uploaded {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.doc-status.pending {
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #f1c40f;
+}
+
+/* Payment Section */
+.payment-info {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.payment-amount {
+    font-family: var(--font-family-headers);
+    font-size: 2rem;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* Notification Toast */
+.toast {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+}
+
+.toast-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+}
+
+/* Theme Toggle Animation */
+.theme-toggle {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: rotate(30deg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .doc-item {
+        flex-direction: column;
+    }
+    
+    .doc-actions {
+        margin-top: 1rem;
+    }
+}
+
+/* Table Styles */
+.table {
+    color: var(--bs-body-color);
+}
+
+/* DataTables Specific Styles */
+.dataTables_wrapper {
+    color: var(--bs-body-color);
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    background-color: var(--input-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+}
+
+.page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--bs-body-color);
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #ffffff;
+}
+
+/* Modal Styles */
+.modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+.modal-header {
+    border-bottom-color: var(--card-border);
+}
+
+.modal-footer {
+    border-top-color: var(--card-border);
+}
