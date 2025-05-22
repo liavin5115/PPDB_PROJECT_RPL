@@ -14,36 +14,36 @@ Sebuah sistem informasi berbasis web untuk pengelolaan penerimaan peserta didik 
 *Bagian informasi program keahlian dan jalur pendaftaran*
 
 ### Halaman Login & Register
-![Halaman Login](static/img/login.png)
+![Halaman Login](app/static/img/login.png)
 *Halaman login pengguna*
 
-![Halaman Register](static/img/register.png)
+![Halaman Register](app/static/img/register.png)
 *Halaman pendaftaran akun baru*
 
 ### Dashboard Siswa
-![Dashboard Siswa](static/img/dashboard_user.html.png)
+![Dashboard Siswa](app/static/img/dashboard_user.html.png)
 *Dashboard untuk siswa dengan status pendaftaran*
 
-![Dashboard Siswa 2](static/img/dashboard_user_2.png)
+![Dashboard Siswa 2](app/static/img/dashboard_user_2.png)
 *Panel kelengkapan dokumen dan status pembayaran*
 
 ### Formulir Pendaftaran
-![Formulir Pendaftaran](static/img/formulir_pendaftaran.png)
+![Formulir Pendaftaran](app/static/img/formulir_pendaftaran.png)
 *Form pengisian data pendaftaran siswa*
 
 ### Dashboard Admin
-![Dashboard Admin](static/img/admin_dashboard.png)
+![Dashboard Admin](app/static/img/admin_dashboard.png)
 *Dashboard admin dengan grafik statistik*
 
-![Dashboard Admin 2](static/img/admin_dashboard_2.png)
+![Dashboard Admin 2](app/static/img/admin_dashboard_2.png)
 *Panel monitoring pendaftaran*
 
 ### Detail Pendaftaran
-![Detail Pendaftaran](static/img/detail_student.png)
+![Detail Pendaftaran](app/static/img/detail_student.png)
 *Halaman detail data pendaftaran siswa*
 
 ### Tabel Data Pendaftar
-![Tabel Pendaftar](static/img/table.png)
+![Tabel Pendaftar](app/static/img/table.png)
 *Tabel lengkap data seluruh pendaftar*
 
 ## ✨ Fitur Utama
