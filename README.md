@@ -1,16 +1,33 @@
 # 📚 SISTEM PENERIMAAN PESERTA DIDIK BARU (PPDB) ONLINE
 
-Sebuah sistem informasi berbasis web untuk pengelolaan penerimaan peserta didik baru yang dibangun menggunakan Flask dan SQLite.
+<div align="center">
 
-**Developer:** Rafa Satria Isyo Pratama
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Flask](https://img.shields.io/badge/Flask-2.0.1-green)
+![License](https://img.shields.io/badge/license-MIT-yellow.svg)
+
+</div>
+
+## 📋 Deskripsi
+Sistem PPDB Online adalah aplikasi berbasis web yang dibuat untuk mempermudah proses penerimaan peserta didik baru. Sistem ini menyediakan platform yang efisien untuk mengelola pendaftaran, verifikasi dokumen, dan proses seleksi siswa baru.
+
+### ⭐ Keunggulan Sistem
+- Interface yang modern dan responsif
+- Manajemen data yang tersentralisasi
+- Proses verifikasi yang transparan
+- Dashboard admin yang informatif
+- Tracking status pendaftaran real-time
+
+**Dikembangkan oleh:** Rafa Satria Isyo Pratama
 
 ## 🖥️ Screenshots
 
 ### Landing Page
-![Landing Page 1](static/img/landing_page_1.png)
+![Landing Page 1](app/static/img/landing_page_1.png)
 *Halaman utama website PPDB Online*
 
-![Landing Page 2](static/img/landing_page_2.png)
+![Landing Page 2](app/static/img/landing_page_2.png)
 *Bagian informasi program keahlian dan jalur pendaftaran*
 
 ### Halaman Login & Register
@@ -85,82 +102,173 @@ Sebuah sistem informasi berbasis web untuk pengelolaan penerimaan peserta didik 
   - Distribusi jenis kelamin
   - Export data ke Excel
 
-## 🛠️ Tech Stack
+## 🛠️ Teknologi yang Digunakan
 
-### Backend
-- **Python Flask** - Web framework
-- **SQLite** - Database
-- **SQLAlchemy** - ORM
-- **Flask-Login** - Autentikasi
-- **Flask-Migrate** - Migrasi database
+<table>
+  <tr>
+    <th>Kategori</th>
+    <th>Teknologi</th>
+    <th>Kegunaan</th>
+  </tr>
+  <tr>
+    <td rowspan="5"><b>Backend</b></td>
+    <td><img src="https://img.shields.io/badge/Python%20Flask-000000?style=flat&logo=flask&logoColor=white" /></td>
+    <td>Web framework utama</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white" /></td>
+    <td>Database management</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/SQLAlchemy-DC382D?style=flat" /></td>
+    <td>ORM (Object Relational Mapping)</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/Flask--Login-000000?style=flat" /></td>
+    <td>Sistem autentikasi</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/Flask--Migrate-000000?style=flat" /></td>
+    <td>Database migration</td>
+  </tr>
+  <tr>
+    <td rowspan="4"><b>Frontend</b></td>
+    <td><img src="https://img.shields.io/badge/Bootstrap%205-7952B3?style=flat&logo=bootstrap&logoColor=white" /></td>
+    <td>Framework CSS</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/Chart.js-FF6384?style=flat&logo=chart.js&logoColor=white" /></td>
+    <td>Visualisasi data & grafik</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/DataTables-428BCA?style=flat" /></td>
+    <td>Tabel interaktif</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/Bootstrap%20Icons-7952B3?style=flat" /></td>
+    <td>Icon pack</td>
+  </tr>
+  <tr>
+    <td rowspan="3"><b>Tools</b></td>
+    <td><img src="https://img.shields.io/badge/Flask--WTF-000000?style=flat" /></td>
+    <td>Form handling & validasi</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/Werkzeug-000000?style=flat" /></td>
+    <td>Password hashing & utilities</td>
+  </tr>
+  <tr>
+    <td><img src="https://img.shields.io/badge/Python--dotenv-000000?style=flat" /></td>
+    <td>Environment variables</td>
+  </tr>
+</table>
 
-### Frontend
-- **Bootstrap 5** - Framework CSS
-- **Chart.js** - Visualisasi data
-- **DataTables** - Tabel interaktif
-- **Bootstrap Icons** - Icon pack
+## 🚀 Panduan Instalasi
 
-### Tools & Library
-- **Flask-WTF** - Form handling & validasi
-- **Werkzeug** - Password hashing
-- **Python-dotenv** - Environment variables
+### Prerequisites
+- Python 3.10 atau lebih baru
+- Git
+- Web browser modern (Chrome/Firefox/Edge)
 
-## 🚀 Instalasi & Setup
+### Langkah Instalasi
 
-1. **Clone repository**
+<details>
+<summary>1️⃣ Clone Repository</summary>
+
 ```powershell
+# Clone repo
 git clone https://github.com/liavin5115/PPDB_PROJECT_RPL.git
+
+# Masuk ke direktori
 cd PPDB_PROJECT_RPL
 ```
+</details>
 
-2. **Buat dan aktifkan virtual environment**
+<details>
+<summary>2️⃣ Setup Environment</summary>
+
 ```powershell
+# Buat virtual environment
 python -m venv venv
-.\venv\Scripts\activate
-```
 
-3. **Install dependencies**
-```powershell
+# Aktifkan virtual environment
+.\venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
+</details>
 
-4. **Inisialisasi database**
+<details>
+<summary>3️⃣ Konfigurasi Database</summary>
+
 ```powershell
+# Jalankan migrasi database
 flask db upgrade
-```
 
-5. **Buat user admin**
-```powershell
+# Buat user admin
 flask create-admin admin password123
 ```
+</details>
 
-6. **Jalankan aplikasi**
+<details>
+<summary>4️⃣ Jalankan Aplikasi</summary>
+
 ```powershell
+# Start development server
 flask run
-```
 
-Buka `http://localhost:5000` di browser Anda
+# Buka di browser
+start http://localhost:5000
+```
+</details>
+
+### Troubleshooting
+
+Jika mengalami masalah saat instalasi:
+
+1. Pastikan Python dan Git terinstall dengan benar
+2. Cek log error di terminal
+3. Pastikan semua dependencies terinstall
+4. Pastikan port 5000 tidak digunakan aplikasi lain
 
 ## 📁 Struktur Project
+
+<details>
+<summary>Klik untuk melihat struktur folder lengkap</summary>
+
+```plaintext
+PPDB_PROJECT_RPL/
+├── 📁 app/                      # Core application
+│   ├── 📄 __init__.py          # App initialization
+│   ├── 📄 models.py            # Database models
+│   ├── 📁 routes/              # Route handlers
+│   │   ├── 📄 auth.py         # Authentication routes
+│   │   └── 📄 main.py         # Main application routes
+│   ├── 📁 static/              # Static files
+│   │   ├── 📁 css/            # Stylesheets
+│   │   ├── 📁 js/             # JavaScript
+│   │   └── 📁 img/            # Images & media
+│   └── 📁 templates/           # HTML templates
+│       ├── 📁 admin/          # Admin views
+│       ├── 📁 components/     # Reusable components
+│       └── 📁 modals/         # Modal templates
+├── 📁 migrations/              # Database migrations
+├── 📄 config.py               # Configuration
+└── 📄 run.py                  # Entry point
 ```
-PROJECT_PMB_SISWA/
-├── app/
-│   ├── __init__.py          # Application factory
-│   ├── models.py            # Database models
-│   ├── routes/
-│   │   ├── auth.py         # Authentication routes
-│   │   └── main.py         # Main application routes
-│   ├── static/
-│   │   ├── css/            # Style files
-│   │   ├── js/             # JavaScript files
-│   │   └── img/            # Image assets
-│   └── templates/
-│       ├── admin/          # Admin templates
-│       ├── components/     # Reusable components
-│       └── modals/         # Modal templates
-├── migrations/              # Database migrations
-├── config.py               # Application configuration
-└── run.py                  # Application entry point
+
+### Penjelasan Folder Utama
+
+- `app/`: Direktori utama aplikasi
+  - `routes/`: Handler untuk setiap endpoint
+  - `static/`: Aset statis (CSS, JS, images)
+  - `templates/`: Template HTML Jinja2
+- `migrations/`: File migrasi database
+- `config.py`: Konfigurasi aplikasi
+- `run.py`: Entry point aplikasi
+
+</details>
 ```
 
 ## 📚 Dokumentasi Lengkap
@@ -172,15 +280,37 @@ Dokumentasi lengkap dapat ditemukan di folder `docs/`:
 
 Silakan baca dokumentasi tersebut untuk informasi lebih detail tentang penggunaan sistem dan riwayat perubahannya.
 
-## 📧 Kontak & Dukungan
+## 📞 Kontak & Dukungan
 
-**Developer:** Rafa Satria Isyo Pratama
-- GitHub: [liavin5115](https://github.com/liavin5115)
-- Email: rafa.satria.isyo.pratama.2008@gmail.com
+<div align="center">
+  <img src="https://img.shields.io/badge/Developer-Rafa%20Satria%20Isyo%20Pratama-blue?style=for-the-badge" alt="Developer" />
+  
+  <a href="https://github.com/liavin5115">
+    <img src="https://img.shields.io/badge/GitHub-liavin5115-black?style=for-the-badge&logo=github" alt="GitHub" />
+  </a>
+  
+  <a href="mailto:rafa.satria.isyo.pratama.2008@gmail.com">
+    <img src="https://img.shields.io/badge/Email-Contact%20Me-red?style=for-the-badge&logo=gmail" alt="Email" />
+  </a>
+</div>
 
 ## 📝 Lisensi
 
-Project ini dilisensikan di bawah Lisensi MIT.
+<div align="center">
+  
+  MIT License
+  
+  Copyright © 2025 Rafa Satria Isyo Pratama
+  
+  [Baca Selengkapnya](LICENSE)
+  
+</div>
 
 ---
-Dibuat dengan ❤️ oleh Rafa Satria Isyo Pratama
+
+<div align="center">
+  <p>Dibuat dengan ❤️ oleh Rafa Satria Isyo Pratama</p>
+  <p>
+    <a href="#-deskripsi">Kembali ke Atas ⬆️</a>
+  </p>
+</div>
