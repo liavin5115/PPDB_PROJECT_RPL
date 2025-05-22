@@ -7,179 +7,260 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- DataTables -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.bootstrap5.min.css">
+
+<style>
+    .stat-card {
+        border-radius: 1rem;
+        border: none;
+        transition: all 0.3s ease;
+        background: var(--bs-body-bg);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 1.5rem;
+    }
+
+    .chart-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        background: var(--bs-body-bg);
+        height: 100%;
+    }
+
+    .chart-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .recent-table {
+        font-size: 0.875rem;
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+
+    [data-bs-theme="dark"] .chart-card {
+        background: var(--bs-dark);
+    }
+
+    [data-bs-theme="dark"] .stat-card {
+        background: var(--bs-dark);
+    }
+
+    .welcome-section {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-rgb) 100%);
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <!-- Welcome Section -->
 <div class="welcome-section mb-4">
-    <h2 class="display-6 mb-3">Selamat Datang, {{ current_user.name }}</h2>
-    <p class="text-muted">Overview pendaftaran siswa baru periode {{ datetime.now().strftime('%Y') }}</p>
+    <h2 class="h3 mb-2">Selamat Datang, {{ current_user.name }}</h2>
+    <p class="text-white-50 mb-0">Overview pendaftaran siswa baru tahun {{ datetime.now().strftime('%Y') }}</p>
 </div>
 
 <!-- Stats Cards -->
-<div class="row mb-4">
-    <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <div class="card stat-card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
                     <div>
-                        <h6 class="text-muted mb-2">Total Pendaftar</h6>                        <h2 class="mb-0">{{ status_stats.total }}</h2>
+                        <h6 class="card-title mb-0">Total Pendaftar</h6>
+                        <h3 class="mb-0">{{ total_applicants }}</h3>
                     </div>
-                    <div class="stats-icon bg-primary bg-opacity-10 rounded p-3">
-                        <i class="bi bi-people-fill text-primary fs-4"></i>
-                    </div>
+                </div>
+                <div class="mt-3 mb-0">
+                    <span class="text-{% if daily_increase > 0 %}success{% else %}danger{% endif %}">
+                        <i class="bi bi-arrow-{% if daily_increase > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ daily_increase }}
+                    </span>
+                    <span class="text-muted">sejak kemarin</span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card stat-card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
                     <div>
-                        <h6 class="text-muted mb-2">Menunggu Verifikasi</h6>
-                        <h2 class="mb-0">{{ status_stats.pending }}</h2>
+                        <h6 class="card-title mb-0">Diterima</h6>
+                        <h3 class="mb-0">{{ accepted_count }}</h3>
                     </div>
-                    <div class="stats-icon bg-warning bg-opacity-10 rounded p-3">
-                        <i class="bi bi-hourglass-split text-warning fs-4"></i>
-                    </div>
+                </div>
+                <div class="mt-3 mb-0">
+                    <span class="text-muted">
+                        {{ (accepted_count / total_applicants * 100)|round(1) if total_applicants > 0 else 0 }}% dari total
+                    </span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card stat-card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>                        <h6 class="text-muted mb-2">Diterima</h6>
-                        <h2 class="mb-0 text-success">{{ status_stats.accepted }}</h2>
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="bi bi-hourglass-split"></i>
                     </div>
-                    <div class="stats-icon bg-success bg-opacity-10 rounded p-3">
-                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    <div>
+                        <h6 class="card-title mb-0">Menunggu</h6>
+                        <h3 class="mb-0">{{ pending_count }}</h3>
                     </div>
+                </div>
+                <div class="mt-3 mb-0">
+                    <span class="text-muted">Perlu ditinjau</span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card stat-card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
                     <div>
-                        <h6 class="text-muted mb-2">Ditolak</h6>
-                        <h2 class="mb-0 text-danger">{{ status_stats.rejected }}</h2>
+                        <h6 class="card-title mb-0">Pembayaran</h6>
+                        <h3 class="mb-0">{{ payment_verified_count }}</h3>
                     </div>
-                    <div class="stats-icon bg-danger bg-opacity-10 rounded p-3">
-                        <i class="bi bi-x-circle-fill text-danger fs-4"></i>
-                    </div>
+                </div>
+                <div class="mt-3 mb-0">
+                    <span class="text-muted">
+                        {{ (payment_verified_count / accepted_count * 100)|round(1) if accepted_count > 0 else 0 }}% terverifikasi
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Overview Section -->
-<div class="row mb-4">
-    <!-- Charts Section -->
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 py-3">
-                <h5 class="card-title m-0">Statistik Pendaftaran</h5>
+<!-- Charts Row 1 -->
+<div class="row g-4 mb-4">
+    <!-- Registration Trend Chart -->
+    <div class="col-xl-8">
+        <div class="card chart-card">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up text-primary me-2"></i>
+                    Tren Pendaftaran
+                </h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <h6 class="text-muted mb-3">Status Pendaftaran</h6>
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <h6 class="text-muted mb-3">Jalur Pendaftaran</h6>
-                        <canvas id="trackChart"></canvas>
-                    </div>
+                <div class="chart-container">
+                    <canvas id="registrationTrendChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Registration Summary -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 py-3">
-                <h5 class="card-title m-0">Informasi Pendaftar</h5>
+    <!-- Major Distribution Chart -->
+    <div class="col-xl-4">
+        <div class="card chart-card">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pie-chart text-primary me-2"></i>
+                    Distribusi Jurusan
+                </h5>
             </div>
             <div class="card-body">
-                <!-- Gender Distribution -->
-                <div class="mb-4">
-                    <h6 class="text-muted mb-3">Distribusi Gender</h6>
-                    <div class="d-flex justify-content-between align-items-center mb-2">                        <span>Laki-laki</span>
-                        <span class="badge bg-primary">{{ gender_stats['Laki-laki'] }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>Perempuan</span>
-                        <span class="badge bg-info">{{ gender_stats['Perempuan'] }}</span>
-                    </div>
-                </div>
-
-                <!-- Religion Distribution -->
-                <div class="mb-4">
-                    <h6 class="text-muted mb-3">Distribusi Agama</h6>
-                    <canvas id="religionChart"></canvas>
-                </div>
-
-                <!-- Payment Status -->
-                <div>
-                    <h6 class="text-muted mb-3">Status Pembayaran</h6>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Sudah Bayar</span>
-                        <span class="badge bg-success">{{ forms|selectattr('payment_status', 'equalto', 'verified')|list|length }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Menunggu Verifikasi</span>
-                        <span class="badge bg-warning">{{ forms|selectattr('payment_status', 'equalto', 'pending')|list|length }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>Belum Bayar</span>
-                        <span class="badge bg-danger">{{ forms|selectattr('payment_status', 'equalto', 'unsubmitted')|list|length }}</span>
-                    </div>
+                <div class="chart-container">
+                    <canvas id="majorDistributionChart"></canvas>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Payment Status -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 py-3">
-                <h5 class="card-title m-0">Status Pembayaran</h5>
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+    <!-- Registration Status Chart -->
+    <div class="col-md-6">
+        <div class="card chart-card">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pie-chart-fill text-primary me-2"></i>
+                    Status Pendaftaran
+                </h5>
             </div>
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h6 class="mb-1">Sudah Diverifikasi</h6>
-                        <div class="fs-4">{{ payment_stats.verified }}</div>
-                    </div>
-                    <div class="stats-icon bg-success bg-opacity-10 rounded p-3">
-                        <i class="bi bi-check2-circle text-success fs-4"></i>
-                    </div>
+                <div class="chart-container">
+                    <canvas id="registrationStatusChart"></canvas>
                 </div>
-                
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h6 class="mb-1">Menunggu Verifikasi</h6>
-                        <div class="fs-4">{{ payment_stats.pending }}</div>
-                    </div>
-                    <div class="stats-icon bg-warning bg-opacity-10 rounded p-3">
-                        <i class="bi bi-clock-history text-warning fs-4"></i>
-                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gender Distribution Chart -->
+    <div class="col-md-6">
+        <div class="card chart-card">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-gender-ambiguous text-primary me-2"></i>
+                    Distribusi Gender
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
                 </div>
-                
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-1">Belum Bayar</h6>
-                        <div class="fs-4">{{ payment_stats.unsubmitted }}</div>
-                    </div>
-                    <div class="stats-icon bg-danger bg-opacity-10 rounded p-3">
-                        <i class="bi bi-exclamation-circle text-danger fs-4"></i>
-                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Religion Distribution Chart -->
+    <div class="col-md-6">
+        <div class="card chart-card">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pie-chart-fill text-primary me-2"></i>
+                    Distribusi Agama
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="religionChart"></canvas>
                 </div>
             </div>
         </div>
@@ -187,45 +268,58 @@
 </div>
 
 <!-- Recent Applications Table -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-transparent border-0 py-3">        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title m-0">Pendaftar Terbaru</h5>
-            <a href="{{ url_for('main.table_view') }}" class="btn btn-primary btn-sm">
-                <i class="bi bi-table me-1"></i>Lihat Semua
-            </a>
-        </div>
+<div class="card chart-card mb-4">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-clock-history text-primary me-2"></i>
+            Pendaftaran Terbaru
+        </h5>
+        <a href="{{ url_for('main.table_view') }}" class="btn btn-sm btn-primary">
+            Lihat Semua
+        </a>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover mb-0">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Nama</th>
-                        <th>Tanggal Daftar</th>
+                        <th>Program Keahlian</th>
                         <th>Status</th>
-                        <th>Pembayaran</th>
+                        <th>Tanggal Daftar</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for form in forms[:5]|sort(attribute='timestamp', reverse=True) %}
+                    {% for form in recent_forms %}
                     <tr>
-                        <td>{{ form.user.name }}</td>
-                        <td>{{ form.timestamp.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ form.id }}</td>
+                        <td>{{ form.full_name }}</td>
                         <td>
-                            <span class="badge bg-{{ 'success' if form.status == 'accepted' else 'danger' if form.status == 'rejected' else 'warning' }}">
-                                {{ form.status|title }}
-                            </span>
+                            {% set major_names = {
+                                'tkj': 'Teknik Komputer dan Jaringan',
+                                'rpl': 'Rekayasa Perangkat Lunak',
+                                'mm': 'Multimedia'
+                            } %}
+                            {{ major_names.get(form.major, 'Belum dipilih') }}
                         </td>
                         <td>
-                            <span class="badge bg-{{ 'success' if form.payment_status == 'verified' else 'warning' if form.payment_status == 'pending' else 'danger' }}">
-                                {{ form.payment_status|title }}
+                            <span class="badge bg-{{ 'warning' if form.status == 'pending'
+                                else 'success' if form.status == 'accepted'
+                                else 'danger' }} rounded-pill">
+                                {{ 'Menunggu' if form.status == 'pending'
+                                    else 'Diterima' if form.status == 'accepted'
+                                    else 'Ditolak' }}
                             </span>
                         </td>
+                        <td>{{ form.timestamp.strftime('%d-%m-%Y %H:%M') }}</td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ form.id }}">
-                                <i class="bi bi-eye me-1"></i>Detail
-                            </button>
+                            <a href="{{ url_for('main.student_detail', student_id=form.id) }}" 
+                               class="btn btn-sm btn-primary"
+                               title="Lihat Detail">
+                                <i class="bi bi-eye"></i>
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -237,90 +331,188 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Status Chart
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Diterima', 'Ditolak', 'Pending'],
-            datasets: [{
-                data: [
-                    {{ forms|selectattr('status', 'equalto', 'accepted')|list|length }},
-                    {{ forms|selectattr('status', 'equalto', 'rejected')|list|length }},
-                    {{ forms|selectattr('status', 'equalto', 'pending')|list|length }}
-                ],
-                backgroundColor: ['#2ecc71', '#e74c3c', '#f1c40f']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
+    const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    const textColor = isDarkMode ? '#fff' : '#666';
 
-    // Registration Track Chart
-    const trackCtx = document.getElementById('trackChart').getContext('2d');
-    new Chart(trackCtx, {
-        type: 'pie',
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = gridColor;    // Registration Trend Chart
+    new Chart(document.getElementById('registrationTrendChart').getContext('2d'), {
+        type: 'line',
         data: {
-            labels: ['Achievement', 'Affirmation', 'Domicile'],
-            datasets: [{                data: [
-                    {{ track_stats.achievement }},
-                    {{ track_stats.affirmation }},
-                    {{ track_stats.domicile }}
-                ],
-                backgroundColor: ['#3498db', '#9b59b6', '#1abc9c']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-
-    // Religion Chart
-    const religionCtx = document.getElementById('religionChart').getContext('2d');
-    new Chart(religionCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'],
+            labels: {{ registration_trend_labels|tojson }},
             datasets: [{
-                data: [
-                    {{ forms|selectattr('religion', 'equalto', 'Islam')|list|length }},
-                    {{ forms|selectattr('religion', 'equalto', 'Kristen')|list|length }},
-                    {{ forms|selectattr('religion', 'equalto', 'Katolik')|list|length }},
-                    {{ forms|selectattr('religion', 'equalto', 'Hindu')|list|length }},
-                    {{ forms|selectattr('religion', 'equalto', 'Buddha')|list|length }},
-                    {{ forms|selectattr('religion', 'equalto', 'Konghucu')|list|length }}
-                ],
-                backgroundColor: '#3498db'
+                label: 'Pendaftar',
+                data: {{ registration_trend_data|tojson }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
-            indexAxis: 'y',
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
                 }
             },
             scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: gridColor
+                    },
+                    ticks: {
+                        color: textColor
+                    }
+                },
                 x: {
-                    beginAtZero: true
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: textColor
+                    }
                 }
             }
         }
     });
+
+    // Registration Status Chart
+    new Chart(document.getElementById('registrationStatusChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Diterima', 'Ditolak', 'Menunggu'],
+            datasets: [{
+                data: [{{ accepted_count }}, {{ rejected_count }}, {{ pending_count }}],
+                backgroundColor: [
+                    'rgba(25, 135, 84, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        boxWidth: 12,
+                        color: textColor
+                    }
+                }
+            }
+        }
+    });
+
+    // Gender Distribution Chart
+    new Chart(document.getElementById('genderChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Laki-laki', 'Perempuan'],
+            datasets: [{
+                data: [{{ gender_counts.male }}, {{ gender_counts.female }}],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.8)',
+                    'rgba(214, 51, 132, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        boxWidth: 12,
+                        color: textColor
+                    }
+                }
+            }
+        }
+    });
+
+    // Religion Distribution Chart
+    new Chart(document.getElementById('religionChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'],
+            datasets: [{
+                data: {{ religion_counts|tojson }},
+                backgroundColor: [
+                    'rgba(25, 135, 84, 0.8)',
+                    'rgba(13, 110, 253, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(111, 66, 193, 0.8)',
+                    'rgba(23, 162, 184, 0.8)',
+                    'rgba(108, 117, 125, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        boxWidth: 12,
+                        color: textColor
+                    }
+                }
+            }
+        }
+    });    // Major Distribution Chart
+    new Chart(document.getElementById('majorDistributionChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ major_names|tojson }},
+            datasets: [{
+                data: {{ major_counts|tojson }},
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.8)',
+                    'rgba(25, 135, 84, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        boxWidth: 12,
+                        color: textColor
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Handle theme changes
+document.addEventListener('themeChanged', function(e) {
+    location.reload();
 });
 </script>
 {% endblock %}

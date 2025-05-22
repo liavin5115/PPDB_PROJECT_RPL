@@ -2,6 +2,65 @@
 
 {% block title %}Dashboard Siswa{% endblock %}
 
+{% block styles %}
+<style>
+    .data-section {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        background: var(--bs-card-bg);
+    }
+    
+    .data-section:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .data-label {
+        color: var(--bs-secondary);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .data-value {
+        color: var(--bs-body-color);
+        font-weight: 500;
+    }
+
+    .section-divider {
+        border-left: 1px solid var(--bs-border-color);
+        height: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .section-divider {
+            border-left: none;
+            border-top: 1px solid var(--bs-border-color);
+            width: 100%;
+            margin: 1rem 0;
+        }
+    }
+
+    [data-bs-theme="dark"] .data-section {
+        background: var(--bs-dark);
+    }
+
+    [data-bs-theme="dark"] .data-section:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .data-card {
+        border: 1px solid var(--bs-border-color);
+        transition: all 0.3s ease;
+    }
+
+    .tooltip {
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-md-8">
@@ -27,7 +86,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="religion" class="form-label">Agama</label>
-                                    {{ admission_form.religion(class="form-control") }}
+                                 	   {{ admission_form.religion(class="form-control") }}
                                 </div>
                             </div>
                         </div>
@@ -50,6 +109,19 @@
                         <div class="mb-3">
                             <label for="previous_school" class="form-label">Sekolah Asal</label>
                             {{ admission_form.previous_school(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="major" class="form-label">Program Keahlian <span class="text-danger">*</span></label>
+                            <select class="form-select" id="major" name="major" required>
+                                <option value="" selected disabled>Pilih Program Keahlian</option>
+                                <option value="tkj" {% if admission_form.major.data == 'tkj' %}selected{% endif %}>Teknik Komputer dan Jaringan</option>
+                                <option value="rpl" {% if admission_form.major.data == 'rpl' %}selected{% endif %}>Rekayasa Perangkat Lunak</option>
+                                <option value="mm" {% if admission_form.major.data == 'mm' %}selected{% endif %}>Multimedia</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Silakan pilih program keahlian
+                            </div>
                         </div>
                         
                         <h4 class="mt-4">Dokumen Wajib</h4>
@@ -82,13 +154,20 @@
                             <label for="photo" class="form-label">Pas Foto</label>
                             {{ admission_form.photo(class="form-control") }}
                             <small class="text-muted">Upload gambar saja (jpg, png)</small>
-                        </div>
-
-                        <h4 class="mt-4">Jalur Pendaftaran (Opsional)</h4>
+                        </div>                        <h4 class="mt-4">Jalur Pendaftaran</h4>
                         <div class="mb-3">
-                            <label class="form-label">Pilih Jalur</label>
+                            <label class="form-label">Pilih Jalur Pendaftaran <span class="text-danger">*</span></label>
                             {{ admission_form.registration_track(class="form-control") }}
-                            <small class="text-muted">Pilih jalur jika Anda memenuhi syarat</small>
+                            <small class="text-muted">Pilih salah satu jalur pendaftaran yang sesuai dengan persyaratan Anda</small>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle me-2"></i>Informasi Jalur Pendaftaran:</h6>
+                            <ul class="mb-0">
+                                <li><strong>Jalur Prestasi</strong> - Untuk siswa dengan prestasi akademik/non-akademik</li>
+                                <li><strong>Jalur Afirmasi</strong> - Untuk siswa dari keluarga tidak mampu atau difabel</li>
+                                <li><strong>Jalur Zonasi</strong> - Berdasarkan jarak tempat tinggal ke sekolah</li>
+                            </ul>
                         </div>
 
                         <div id="trackDocs" style="display: none;">
@@ -120,6 +199,9 @@
                         <button type="submit" class="btn btn-primary">Kirim Pendaftaran</button>
                     </form>
                 {% else %}
+                    <!-- Progress Bar Section -->
+
+                    
                     <div class="submitted-data">
                         <div class="alert alert-info mb-4">
                             Status pendaftaran Anda: 
@@ -134,133 +216,159 @@
                             </strong>
                         </div>
 
-                        <h4 class="mb-4">Data Pendaftaran</h4>
-                        
-                        <!-- Personal Information -->
+                        <!-- Status Card -->
                         <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Personal Information</h5>
-                                <button type="button" class="btn btn-primary btn-sm" id="editPersonalInfo">
-                                    <i class="bi bi-pencil-fill me-1"></i>Edit
-                                </button>
+                            <div class="card-header bg-{{ 'success' if form.status == 'accepted' else 'warning' }} text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-check-circle me-2"></i>Status Pendaftaran
+                                </h5>
                             </div>
                             <div class="card-body">
-                                <form id="personalInfoForm" class="needs-validation" novalidate>
-                                    <div class="row g-3">
-                                        <!-- Name field (readonly) -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">Name</label>
-                                            <input type="text" class="form-control" value="{{ current_user.name }}" readonly>
-                                        </div>
-                                        
-                                        <!-- Gender field -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">Gender</label>
-                                            <select name="gender" class="form-control profile-field" disabled>
-                                                <option value="Laki-laki" {% if form.gender == 'Laki-laki' %}selected{% endif %}>Laki-laki</option>
-                                                <option value="Perempuan" {% if form.gender == 'Perempuan' %}selected{% endif %}>Perempuan</option>
-                                            </select>
-                                            <div class="update-status"></div>
-                                        </div>
-                                        
-                                        <!-- Birth Date field -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">Birth Date</label>
-                                            <input type="date" name="birth_date" class="form-control profile-field" 
-                                                   value="{{ form.parsed_form_data.get('birth_date', '') }}" disabled>
-                                            <div class="update-status"></div>
-                                        </div>
-                                        
-                                        <!-- Religion field -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">Religion</label>
-                                            <select name="religion" class="form-control profile-field" disabled>
-                                                {% for religion in ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'] %}
-                                                    <option value="{{ religion }}" {% if form.religion == religion %}selected{% endif %}>
-                                                        {{ religion }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                            <div class="update-status"></div>
-                                        </div>
-                                        
-                                        <!-- Address field -->
-                                        <div class="col-12">
-                                            <label class="form-label">Address</label>
-                                            <textarea name="address" class="form-control profile-field" rows="2" disabled>{{ form.parsed_form_data.get('address', '') }}</textarea>
-                                            <div class="update-status"></div>
-                                        </div>
-                                        
-                                        <!-- Phone field -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">Phone</label>
-                                            <input type="tel" name="phone" class="form-control profile-field" 
-                                                   value="{{ form.parsed_form_data.get('phone', '') }}" disabled>
-                                            <div class="update-status"></div>
-                                        </div>
-                                        
-                                        <!-- Previous School field -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">Previous School</label>
-                                            <input type="text" name="previous_school" class="form-control profile-field" 
-                                                   value="{{ form.parsed_form_data.get('previous_school', '') }}" disabled>
-                                            <div class="update-status"></div>
-                                        </div>
-
-                                        <!-- Save/Cancel buttons (initially hidden) -->
-                                        <div class="col-12 mt-3 d-none" id="personalInfoButtons">
-                                            <button type="button" class="btn btn-primary" id="savePersonalInfo">
-                                                <i class="bi bi-check-lg me-1"></i>Save Changes
-                                            </button>
-                                            <button type="button" class="btn btn-secondary" id="cancelPersonalInfo">
-                                                <i class="bi bi-x-lg me-1"></i>Cancel
-                                            </button>
-                                        </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Status: 
+                                            <span class="badge bg-{{ 'success' if form.status == 'accepted' else 'warning' }}">
+                                                {{ form.status|title }}
+                                            </span>
+                                        </h6>
+                                        <small class="text-muted">
+                                            Tanggal Pendaftaran: {{ form.timestamp.strftime('%d %B %Y') }}
+                                        </small>
                                     </div>
-                                </form>
+                                    {% if form.status == 'accepted' %}
+                                    <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                                    {% else %}
+                                    <i class="bi bi-clock fs-3 text-warning"></i>
+                                    {% endif %}
+                                </div>
+
+                                {% if form.status == 'pending' %}
+                                <div class="alert alert-info mt-3 mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Pendaftaran Anda sedang dalam proses review. Silakan cek kembali secara berkala.
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
-
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0">Informasi Pribadi</h5>
+                        <!-- Data Pendaftaran Card -->
+                        <div class="card data-card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-person-vcard me-2"></i>Data Pendaftaran
+                                </h5>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-muted">Nama Lengkap</label>
-                                        <p class="mb-0">{{ current_user.name }}</p>
+                                <div class="row g-4">                                    <div class="col-md-6 data-section p-3">
+                                        <h6 class="mb-4 border-bottom pb-2">
+                                            <i class="bi bi-person-circle me-2"></i>Data Diri
+                                        </h6>
+                                        <dl class="row g-3">
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Nama lengkap sesuai dokumen resmi">
+                                                    <i class="bi bi-person"></i> Nama Lengkap
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.full_name if form.full_name else '-' }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Jenis kelamin">
+                                                    <i class="bi bi-gender-ambiguous"></i> Jenis Kelamin
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.gender if form.gender else '-' }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Tempat kelahiran">
+                                                    <i class="bi bi-geo-alt"></i> Tempat Lahir
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.birth_place if form.birth_place else '-' }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Tanggal kelahiran">
+                                                    <i class="bi bi-calendar"></i> Tanggal Lahir
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.birth_date if form.birth_date else '-' }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Agama">
+                                                    <i class="bi bi-book"></i> Agama
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.religion if form.religion else '-' }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Nomor telepon aktif">
+                                                    <i class="bi bi-telephone"></i> No. Telepon
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.phone if form.phone else '-' }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Alamat tempat tinggal">
+                                                    <i class="bi bi-house"></i> Alamat
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.address if form.address else '-' }}</dd>
+                                        </dl>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-muted">Jenis Kelamin</label>
-                                        <p class="mb-0">{{ form.gender }}</p>
+                                    
+                                    <div class="col-md-6 data-section p-3">
+                                        <h6 class="mb-4 border-bottom pb-2">
+                                            <i class="bi bi-mortarboard me-2"></i> Data Akademik & Orang Tua
+                                        </h6>
+                                        <dl class="row g-3">
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Sekolah asal">
+                                                    <i class="bi bi-building"></i> Asal Sekolah
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.previous_school }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Program keahlian yang dipilih">
+                                                    <i class="bi bi-laptop"></i> Program Keahlian
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">
+                                                {% set major_names = {
+                                                    'tkj': 'Teknik Komputer dan Jaringan',
+                                                    'rpl': 'Rekayasa Perangkat Lunak',
+                                                    'mm': 'Multimedia'
+                                                } %}
+                                                {{ major_names[form.major] }}
+                                            </dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Nama orang tua/wali">
+                                                    <i class="bi bi-people"></i> Nama Orang Tua
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.parent_name }}</dd>
+                                            
+                                            <dt class="col-sm-4">
+                                                <span class="data-label" data-bs-toggle="tooltip" title="Nomor telepon orang tua/wali">
+                                                    <i class="bi bi-telephone"></i> No. HP Orang Tua
+                                                </span>
+                                            </dt>
+                                            <dd class="col-sm-8 data-value">{{ form.parent_phone }}</dd>
+                                        </dl>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-muted">Agama</label>
-                                        <p class="mb-0">{{ form.religion }}</p>
-                                    </div>
-                                    {% if form.parsed_form_data %}
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-muted">Tanggal Lahir</label>
-                                        <p class="mb-0">{{ form.parsed_form_data.get('birth_date', '-') }}</p>
-                                    </div>
-                                    <div class="col-md-12 mb-3">
-                                        <label class="text-muted">Alamat</label>
-                                        <p class="mb-0">{{ form.parsed_form_data.get('address', '-') }}</p>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-muted">Nomor Telepon</label>
-                                        <p class="mb-0">{{ form.parsed_form_data.get('phone', '-') }}</p>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-muted">Sekolah Asal</label>
-                                        <p class="mb-0">{{ form.parsed_form_data.get('previous_school', '-') }}</p>
-                                    </div>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Initialize tooltips -->
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl)
+                            })
+                        })
+                        </script>
 
                         <!-- Document Management Card -->
                         <div class="card mb-4">
@@ -302,11 +410,13 @@
                                                     </small>
                                                 </div>
                                             </div>
-                                            
-                                            <div class="document-actions">
+                                              <div class="document-actions">
                                                 {% if doc_data %}
-                                                <div class="btn-group w-100">                                                    <button type="button" class="btn btn-outline-primary btn-sm flex-grow-1 view-doc-btn" 
-                                                            data-doc-type="{{ doc_id }}">
+                                                <div class="btn-group w-100">
+                                                    <button type="button" 
+                                                            class="btn btn-outline-primary btn-sm flex-grow-1"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#fileModal_{{ doc_id }}">
                                                         <i class="bi bi-eye me-1"></i>Lihat
                                                     </button>
                                                     <button type="button" class="btn btn-outline-secondary btn-sm upload-doc-btn"
@@ -557,7 +667,8 @@
                 {% endif %}
             </div>
         </div>
-    </div>    <div class="col-md-4">
+    </div>    
+    <div class="col-md-4">
         <!-- Required Documents Card -->
         {% if form %}
             <div class="card mb-4">
@@ -594,6 +705,31 @@
                 </div>
             </div>
         {% endif %}
+
+        <!-- Major Information Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-mortarboard-fill me-2"></i>Program Keahlian
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if form and form.major %}
+                    {% set major_names = {
+                        'tkj': 'Teknik Komputer dan Jaringan',
+                        'rpl': 'Rekayasa Perangkat Lunak',
+                        'mm': 'Multimedia'
+                    } %}
+                    <h4 class="mb-3">{{ major_names[form.major] }}</h4>
+                    <p class="text-muted">Program keahlian yang Anda pilih</p>
+                {% else %}
+                    <p class="text-warning mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Anda belum memilih program keahlian
+                    </p>
+                {% endif %}
+            </div>
+        </div>
 
         <!-- Notifications Card -->
         <div class="card mb-4">
@@ -859,6 +995,59 @@
         </div>
     </div>
 </div>
+{% if form %}
+<!-- Progress Section -->
+
+{% endif %}
+
+<!-- Document Viewer Modals -->
+{% for doc_id, doc_name, doc_data, doc_mime in [
+    ('graduation_certificate', 'Ijazah/SKL', form.graduation_certificate_data if form else None, form.graduation_certificate_mimetype),
+    ('birth_certificate', 'Akta Kelahiran', form.birth_certificate_data if form else None, form.birth_certificate_mimetype),
+    ('family_card', 'Kartu Keluarga', form.family_card_data if form else None, form.family_card_mimetype),
+    ('report_card', 'Rapor', form.report_card_data if form else None, form.report_card_mimetype),
+    ('photo', 'Pas Foto', form.photo_data if form else None, form.photo_mimetype)
+] %}
+    {% if doc_data %}
+    <div class="modal fade" id="fileModal_{{ doc_id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-earmark-text me-2"></i>{{ doc_name }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    {% if 'image' in doc_mime %}
+                        <img src="data:{{ doc_mime }};base64,{{ doc_data|b64encode }}" 
+                            class="img-fluid w-100" 
+                            alt="{{ doc_name }}">
+                    {% elif 'pdf' in doc_mime %}
+                        <embed src="data:{{ doc_mime }};base64,{{ doc_data|b64encode }}"
+                            type="application/pdf"
+                            width="100%"
+                            height="600px">
+                    {% else %}
+                        <div class="alert alert-warning m-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Format file tidak didukung untuk pratinjau
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer border-top">
+                    <a href="{{ url_for('main.download_file', form_id=form.id, document_type=doc_id) }}" 
+                       class="btn btn-primary">
+                        <i class="bi bi-download me-1"></i>Unduh
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+
 {% endblock %}
 
 <!-- Registration Status and Payment Card -->

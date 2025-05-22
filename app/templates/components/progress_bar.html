@@ -1,0 +1,73 @@
+{% if form %}
+<div class="progress-container mb-4">
+    <div class="progress">
+        <div class="progress-bar {{ form.get_progress_class() }}" 
+             role="progressbar" 
+             style="width: {{ form.calculate_progress() }}%"
+             aria-valuenow="{{ form.calculate_progress() }}" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+            {{ form.calculate_progress() }}%
+        </div>
+    </div>
+    
+    <!-- Progress Details -->
+    <div class="progress-details mt-2">
+        <div class="row">
+            <!-- Documents Progress -->
+            <div class="col-md-3">
+                <small class="text-muted">Documents (50%):</small>
+                <ul class="list-unstyled">
+                    <li>
+                        <i class="fas {% if form.graduation_certificate_data %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                        Graduation Certificate
+                    </li>
+                    <li>
+                        <i class="fas {% if form.birth_certificate_data %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                        Birth Certificate
+                    </li>
+                    <li>
+                        <i class="fas {% if form.family_card_data %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                        Family Card
+                    </li>
+                    <li>
+                        <i class="fas {% if form.report_card_data %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                        Report Card
+                    </li>
+                    <li>
+                        <i class="fas {% if form.photo_data %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                        Photo
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Registration Progress -->
+            <div class="col-md-3">
+                <small class="text-muted">Registration (20%):</small>
+                <div>
+                    <i class="fas {% if form.initial_form_submitted %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                    Form Submitted
+                </div>
+            </div>
+            
+            <!-- Verification Progress -->
+            <div class="col-md-3">
+                <small class="text-muted">Verification (20%):</small>
+                <div>
+                    <i class="fas {% if form.status == 'verified' %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                    Documents Verified
+                </div>
+            </div>
+            
+            <!-- Payment Progress -->
+            <div class="col-md-3">
+                <small class="text-muted">Payment (10%):</small>
+                <div>
+                    <i class="fas {% if form.payment_status == 'verified' %}fa-check text-success{% else %}fa-times text-danger{% endif %}"></i>
+                    Payment Verified
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

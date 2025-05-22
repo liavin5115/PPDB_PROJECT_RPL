@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
-from app.models import User, db
+from app.models import User, Form, db
 
 auth = Blueprint('auth', __name__)
 
@@ -31,15 +31,23 @@ class RegisterForm(FlaskForm):
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-
+        
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
+            
+            # Check if user needs to complete registration form
+            if user.role != 'admin':
+                user_form = Form.query.filter_by(user_id=user.id).first()
+                if not user_form or not user_form.initial_form_submitted:
+                    return redirect(url_for('main.registration_form'))
+                    
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
-        flash('Invalid username or password', 'danger')
+            return redirect(next_page or url_for('main.dashboard'))
+            
+        flash('Username atau password salah', 'danger')
     return render_template('login.html', form=form)
 
 @auth.route('/register', methods=['GET', 'POST'])

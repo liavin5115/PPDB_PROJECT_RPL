@@ -1,0 +1,45 @@
+{% if current_user.role == 'admin' %}
+<div class="action-buttons d-flex gap-1">    <!-- View Detail Button -->
+    <a href="{{ url_for('main.student_detail', student_id=form.id) }}" 
+       class="btn btn-sm btn-primary"
+       title="Lihat Detail">
+        <i class="bi bi-eye"></i>
+    </a>
+    
+    <!-- Action Buttons for Pending Status -->
+    {% if form.status == 'pending' %}
+    <div class="btn-group">
+        <form class="d-inline status-update-form" action="{{ url_for('main.update_status', form_id=form.id) }}" method="POST">
+            <input type="hidden" name="status" value="accepted">
+            <button type="submit" class="btn btn-sm btn-success" title="Terima Pendaftaran">
+                <i class="bi bi-check-lg"></i>
+            </button>
+        </form>
+        <form class="d-inline status-update-form" action="{{ url_for('main.update_status', form_id=form.id) }}" method="POST">
+            <input type="hidden" name="status" value="rejected">
+            <button type="submit" class="btn btn-sm btn-danger" title="Tolak Pendaftaran">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+    
+    <!-- Payment Verification Buttons -->
+    {% if form.status == 'accepted' and form.payment_status == 'submitted' %}
+    <div class="btn-group">
+        <form class="d-inline payment-verify-form" action="{{ url_for('main.verify_payment', form_id=form.id) }}" method="POST">
+            <input type="hidden" name="payment_status" value="verified">
+            <button type="submit" class="btn btn-sm btn-success" title="Verifikasi Pembayaran">
+                <i class="bi bi-check-circle"></i>
+            </button>
+        </form>
+        <form class="d-inline payment-verify-form" action="{{ url_for('main.verify_payment', form_id=form.id) }}" method="POST">
+            <input type="hidden" name="payment_status" value="rejected">
+            <button type="submit" class="btn btn-sm btn-warning" title="Tolak Pembayaran">
+                <i class="bi bi-x-circle"></i>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

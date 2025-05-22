@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Formulir Pendaftaran{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-vcard me-2"></i>Formulir Pendaftaran Siswa Baru
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">Silakan lengkapi data diri Anda dengan benar</p>
+
+                    <form method="POST" action="{{ url_for('main.submit_registration') }}" class="needs-validation" novalidate>
+                        {{ form.csrf_token if form }}
+                        
+                        <!-- Data Diri -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Data Diri</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="full_name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="gender" name="gender" required>
+                                        <option value="">Pilih Jenis Kelamin</option>
+                                        <option value="Laki-laki">Laki-laki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="birth_place" class="form-label">Tempat Lahir <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="birth_place" name="birth_place" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="birth_date" class="form-label">Tanggal Lahir <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Alamat Lengkap <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="religion" class="form-label">Agama <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="religion" name="religion" required>
+                                        <option value="">Pilih Agama</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Kristen">Kristen</option>
+                                        <option value="Katolik">Katolik</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Buddha">Buddha</option>
+                                        <option value="Konghucu">Konghucu</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Orang Tua -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Data Orang Tua</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="parent_name" class="form-label">Nama Orang Tua/Wali <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="parent_name" name="parent_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="parent_phone" class="form-label">Nomor Telepon Orang Tua/Wali <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="parent_phone" name="parent_phone" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Akademik -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Data Akademik</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="previous_school" class="form-label">Asal Sekolah <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="previous_school" name="previous_school" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="major" class="form-label">Program Keahlian <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="major" name="major" required>
+                                        <option value="">Pilih Program Keahlian</option>
+                                        <option value="tkj">Teknik Komputer dan Jaringan</option>
+                                        <option value="rpl">Rekayasa Perangkat Lunak</option>
+                                        <option value="mm">Multimedia</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-2"></i>Kirim Formulir Pendaftaran
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

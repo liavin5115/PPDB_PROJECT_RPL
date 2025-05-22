@@ -1,4 +1,6 @@
-<div class="profile-progress-section mb-4">
+<div class="profile-progress-section mb-4" 
+     data-application-status="{{ form.status }}"
+     data-payment-status="{{ form.payment_status }}">
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <!-- Overall Progress -->
@@ -6,9 +8,8 @@
                 <h5 class="card-title mb-0">
                     <i class="bi bi-person-check text-primary me-2"></i>Progress Pendaftaran
                 </h5>
-                <div class="progress-badge">
-                    <span class="badge bg-{{ progress_class }} rounded-pill">
-                        {{ completion_percentage }}%
+                <div class="progress-badge">                    <span class="badge {% if form.payment_status == 'verified' %}bg-success{% else %}bg-{{ progress_class }}{% endif %} rounded-pill">
+                        {{ form.progress_percentage }}%
                     </span>
                 </div>
             </div>

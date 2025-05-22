@@ -51,14 +51,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const achievementDocs = document.getElementById('achievementDocs');
     const affirmationDocs = document.getElementById('affirmationDocs');
     const domicileDocs = document.getElementById('domicileDocs');
-    
-    if (trackSelect) {
+      if (trackSelect) {
         trackSelect.addEventListener('change', function() {
             // Hide all doc sections first
-            trackDocs.style.display = 'none';
-            achievementDocs.style.display = 'none';
-            affirmationDocs.style.display = 'none';
-            domicileDocs.style.display = 'none';
+            const allDocs = [trackDocs, achievementDocs, affirmationDocs, domicileDocs];
+            allDocs.forEach(doc => {
+                if(doc) doc.style.display = 'none';
+            });
+            
+            // Show relevant documents section based on selected track
+            if (this.value === 'achievement' && achievementDocs) {
+                trackDocs.style.display = 'block';
+                achievementDocs.style.display = 'block';
+            } else if (this.value === 'affirmation' && affirmationDocs) {
+                trackDocs.style.display = 'block';
+                affirmationDocs.style.display = 'block';
+            } else if (this.value === 'domicile' && domicileDocs) {
+                trackDocs.style.display = 'block';
+                domicileDocs.style.display = 'block';
+            }
             
             // Show relevant section based on selection
             if (this.value) {
@@ -355,6 +366,134 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Handle status update forms
+    document.querySelectorAll('form[action*="update-status"]').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const button = form.querySelector('button');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Memproses...';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    // Refresh halaman setelah sukses
+                    window.location.reload();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showAlert('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+            }
+        });
+    });
+
+    // Handle status update and payment verification forms
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form.matches('.status-update-form, .payment-verify-form')) {
+            e.preventDefault();
+            
+            const button = form.querySelector('button');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Memproses...';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Refresh halaman
+                    window.location.reload();
+                } else {
+                    throw new Error(data.error || 'Terjadi kesalahan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showAlert('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+            });
+        }
+    });
+
+    // Handle payment verification forms
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form.matches('.payment-verify-form')) {
+            e.preventDefault();
+            
+            const button = form.querySelector('button');
+            const originalHtml = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload halaman untuk memperbarui status
+                    window.location.reload();
+                } else {
+                    throw new Error(data.error || 'Terjadi kesalahan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+                button.innerHTML = originalHtml;
+                button.disabled = false;
+            });
+        }
+    });
+
+    // Show alert function
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        alertDiv.style.zIndex = '1050';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
 });
 
 function updateDocument(docType, formData, inputElement) {

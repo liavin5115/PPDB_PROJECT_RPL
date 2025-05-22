@@ -14,11 +14,22 @@ class User(UserMixin, db.Model):
 class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    gender = db.Column(db.String(10), nullable=False, default='Laki-laki')  # Add default
-    religion = db.Column(db.String(20), nullable=False, default='Islam')  # Add default
-    form_data = db.Column(db.Text, nullable=False, default='{}')  # Add default
-    status = db.Column(db.String(20), default='pending')
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    gender = db.Column(db.String(10), nullable=False, default='Laki-laki')
+    religion = db.Column(db.String(20), nullable=False, default='Islam')
+    major = db.Column(db.String(50), nullable=True)
+    form_data = db.Column(db.Text, nullable=False, default='{}')
+    full_name = db.Column(db.String(100))
+    birth_place = db.Column(db.String(100))
+    birth_date = db.Column(db.String(20))  # Changed to String for date storage
+    address = db.Column(db.Text)
+    phone = db.Column(db.String(20))
+    parent_name = db.Column(db.String(100))
+    parent_phone = db.Column(db.String(20))
+    previous_school = db.Column(db.String(100))
+    initial_form_submitted = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')
+    payment_status = db.Column(db.String(20), nullable=False, default='pending')  # Add payment status
     
     # Document fields
     graduation_certificate = db.Column(db.String(255))
@@ -106,67 +117,189 @@ class Form(db.Model):
             return 'in_progress'
         return 'incomplete'
 
+    def validate_field_value(self, value):
+        """Validate if a field value is actually filled with meaningful data"""
+        if value is None:
+            return False
+        if isinstance(value, str):
+            # Remove whitespace and check if empty
+            cleaned = value.strip()
+            # Check for common placeholder values
+            invalid_values = ['Pilih', 'Select', '-', 'None', 'Tidak Ada']
+            return cleaned and not any(invalid in cleaned for invalid in invalid_values)
+        if isinstance(value, (int, float)):
+            return True
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (bytes, bytearray)):
+            return len(value) > 0
+        if isinstance(value, (list, dict, set)):
+            return bool(value)
+        return bool(value)
+
+    def calculate_profile_completion(self):
+        """Calculate profile completion percentage with strict validation"""
+        required_fields = {
+            'full_name': (self.full_name, 15),           # Basic identity
+            'birth_place': (self.birth_place, 10),
+            'birth_date': (self.birth_date, 10),
+            'gender': (self.gender, 10),
+            'religion': (self.religion, 5),
+            
+            'phone': (self.phone, 10),                   # Contact info  
+            'address': (self.address, 15),
+            
+            'parent_name': (self.parent_name, 10),       # Parent info
+            'parent_phone': (self.parent_phone, 5),
+            
+            'previous_school': (self.previous_school, 5), # Education
+            'major': (self.major, 5)                     # Program selection
+        }
+        
+        total_weight = sum(weight for _, weight in required_fields.items())
+        completed_weight = sum(weight for (value, weight) in required_fields.items() 
+                             if self.validate_field_value(value))
+        
+        return int((completed_weight / total_weight * 100) if total_weight > 0 else 0)
+        def validate_document(self, data):
+            """Check if document data is valid"""
+            if not data:
+                return False
+            # Ensure document has actual content (at least 1KB)
+            min_size = 1024  # 1KB
+            if isinstance(data, (bytes, bytearray)) and len(data) < min_size:
+                return False
+            return True
+
+    def calculate_document_completion(self):
+        """Calculate document completion percentage with strict validation"""
+        # Required documents with weights
+        required_docs = {
+            'graduation_certificate_data': (self.graduation_certificate_data, 25), # Most important
+            'birth_certificate_data': (self.birth_certificate_data, 20),
+            'family_card_data': (self.family_card_data, 20),
+            'photo_data': (self.photo_data, 20),
+            'report_card_data': (self.report_card_data, 15)
+        }
+        
+        # Add track-specific document requirement if track is selected
+        if self.registration_track:
+            track_docs = {
+                'achievement': (self.achievement_docs_data, 30),
+                'affirmation': (self.affirmation_docs_data, 30), 
+                'domicile': (self.domicile_docs_data, 30)
+            }
+            if self.registration_track in track_docs:
+                required_docs['track_document'] = track_docs[self.registration_track]
+        
+        total_weight = sum(weight for _, weight in required_docs.values())
+        completed_weight = sum(weight for (data, weight) in required_docs.values() 
+                             if self.validate_document(data))
+        
+        return int((completed_weight / total_weight * 100) if total_weight > 0 else 0)
+
     @property
     def progress_percentage(self):
-        """Calculate overall progress percentage"""
+        """Calculate overall progress with weighted components and validation"""
+        # Get base completion percentages
         profile_completion = self.calculate_profile_completion()
         document_completion = self.calculate_document_completion()
-        return (profile_completion + document_completion) // 2
+        
+        # If nothing is filled out, return 0
+        if profile_completion == 0 and document_completion == 0:
+            return 0
+            
+        # Weight components
+        profile_weight = 0.4   # Profile is 40% of total
+        document_weight = 0.6  # Documents are 60% of total
+        base_completion = (profile_completion * profile_weight) + (document_completion * document_weight)
+
+        # Ensure base completion reflects actual progress
+        if base_completion < profile_completion * profile_weight:
+            return int(profile_completion * profile_weight)
+        if base_completion < document_completion * document_weight:
+            return int(document_completion * document_weight)
+        
+        # Status and payment adjustments
+        if self.status == 'accepted':
+            if self.payment_status == 'verified':
+                # Only return 100% if everything is complete
+                if profile_completion > 90 and document_completion > 90:
+                    return 100
+                # High completion but not perfect
+                return 95 if base_completion > 90 else 90
+            # Accepted but payment pending
+            return min(85, base_completion + 10)
+            
+        elif self.status == 'rejected':
+            # Cap rejected applications
+            return min(85, base_completion)
+        
+        # Payment status adjustments for pending applications
+        if self.payment_status == 'verified':
+            if profile_completion > 90 and document_completion > 90:
+                return min(95, base_completion + 10)
+            return min(90, base_completion + 5)
+        elif self.payment_status == 'submitted':
+            return min(85, base_completion + 5)
+        
+        # Regular progress
+        if base_completion > 0:
+            # Ensure minimum progress reflects actual work
+            return max(min(base_completion, 80), 
+                      min(10, profile_completion + document_completion))
+        
+        return 0
+
+    def calculate_document_completion(self):
+        """Calculate document completion percentage with weighted documents"""
+        required_docs = {
+            'graduation_certificate_data': (self.graduation_certificate_data, 25),  # Most important
+            'birth_certificate_data': (self.birth_certificate_data, 20),
+            'family_card_data': (self.family_card_data, 20),
+            'photo_data': (self.photo_data, 20),
+            'report_card_data': (self.report_card_data, 15)
+        }
+        
+        # Add track-specific document requirement
+        track_docs = {
+            'achievement': (self.achievement_docs_data, 30),
+            'affirmation': (self.affirmation_docs_data, 30),
+            'domicile': (self.domicile_docs_data, 30)
+        }
+        
+        if self.registration_track in track_docs:
+            required_docs['track_document'] = track_docs[self.registration_track]
+            
+        total_weight = sum(weight for _, weight in required_docs.values())
+        completed_weight = sum(weight for (data, weight) in required_docs.values() 
+                             if data and len(data or b'') > 0)
+        
+        return round((completed_weight / total_weight) * 100) if total_weight > 0 else 0
 
     @property 
     def completion_status(self):
         """Returns tuple of (status message, progress class) based on completion"""
-        profile_completion = self.calculate_profile_completion()
-        doc_completion = self.calculate_document_completion()
+        progress = self.progress_percentage
         
-        # Calculate total completion percentage
-        total_completion = (profile_completion + doc_completion) / 2
-        
-        # Define status thresholds and messages
-        if total_completion >= 100:
-            return ('Complete', 'success')
-        elif total_completion >= 75:
-            return ('Almost Complete', 'info')
-        elif total_completion >= 25:
-            return ('In Progress', 'warning') 
-        else:
-            return ('Just Started', 'danger')
-
-    def calculate_profile_completion(self):
-        """Calculate profile completion percentage"""
-        required_fields = [
-            self.gender,
-            self.religion,
-            self.form_data  # Assumes form_data contains other required fields
-        ]
-        
-        completed = sum(1 for field in required_fields if field and field != '{}')
-        total = len(required_fields)
-        
-        return (completed / total) * 100
-
-    def calculate_document_completion(self):
-        """Calculate document completion percentage"""
-        required_docs = [
-            self.graduation_certificate_data,
-            self.birth_certificate_data,
-            self.family_card_data,
-            self.report_card_data,
-            self.photo_data
-        ]
-        
-        # Add track-specific document check
-        if self.registration_track == 'achievement':
-            required_docs.append(self.achievement_docs_data)
-        elif self.registration_track == 'affirmation':
-            required_docs.append(self.affirmation_docs_data)
-        elif self.registration_track == 'domicile':
-            required_docs.append(self.domicile_docs_data)
+        if self.status == 'accepted':
+            if self.payment_status == 'verified':
+                return ('Pendaftaran Selesai', 'success')
+            return ('Diterima - Menunggu Pembayaran', 'info')
             
-        completed = sum(1 for doc in required_docs if doc is not None)
-        total = len(required_docs)
-        
-        return (completed / total) * 100
+        elif self.status == 'rejected':
+            return ('Pendaftaran Ditolak', 'danger')
+            
+        elif progress >= 95:
+            return ('Menunggu Verifikasi', 'info')
+        elif progress >= 75:
+            return ('Hampir Selesai', 'primary')
+        elif progress >= 50:
+            return ('Sedang Diproses', 'warning')
+        elif progress >= 25:
+            return ('Tahap Awal', 'warning')
+        else:
+            return ('Belum Lengkap', 'danger')
 
     def get_document_status(self):
         """Return status of all required documents"""
@@ -262,3 +395,144 @@ class Form(db.Model):
         # Calculate percentage
         percentage = (completed / total_required) * 100
         return round(percentage)
+
+    def check_form_completion(self):
+        """Check if all required fields are filled."""
+        required_fields = [
+            self.full_name,
+            self.gender,
+            self.birth_place,
+            self.birth_date,
+            self.address,
+            self.phone,
+            self.religion,
+            self.parent_name,
+            self.parent_phone,
+            self.previous_school,
+            self.major
+        ]
+        return all(required_fields)
+
+    def update_payment_status(self, status):
+        """Update payment status and save to database"""
+        self.payment_status = status
+        db.session.commit()
+        return True
+
+    def update_status(self, status):
+        """Update application status and save to database"""
+        self.status = status
+        if status == 'rejected':
+            self.payment_status = 'pending'
+        db.session.commit()
+        return True
+
+    @property
+    def progress_percentage(self):
+        """Calculate the completion percentage of the registration form."""
+        required_fields = [
+            self.full_name,
+            self.birth_place,
+            self.birth_date,
+            self.address,
+            self.phone,
+            self.parent_name,
+            self.parent_phone,
+            self.previous_school
+        ]
+        
+        total_fields = len(required_fields)
+        filled_fields = sum(1 for field in required_fields if field is not None and field.strip())
+        
+        # Calculate base percentage from required fields
+        base_percentage = (filled_fields / total_fields) * 100
+        
+        # Round to nearest whole number
+        return round(base_percentage)
+
+    def calculate_progress(self):
+        """Calculate overall registration progress."""
+        progress = 0
+        
+        # Document progress (50% total - 10% each)
+        documents = {
+            'graduation_certificate_data': self.graduation_certificate_data,
+            'birth_certificate_data': self.birth_certificate_data,
+            'family_card_data': self.family_card_data,
+            'report_card_data': self.report_card_data,
+            'photo_data': self.photo_data
+        }
+        
+        # Add 10% for each uploaded document
+        for doc in documents.values():
+            if doc is not None:
+                progress += 10
+        
+        # Registration submission progress (20%)
+        if self.initial_form_submitted:
+            progress += 20
+        
+        # Document verification progress (20%)
+        if self.status == 'verified':
+            progress += 20
+        
+        # Payment completion progress (10%)
+        if self.payment_status == 'verified':
+            progress += 10
+            
+        return progress
+
+    def get_progress_class(self):
+        """Return the appropriate Bootstrap progress bar class based on progress percentage."""
+        progress = self.calculate_progress()
+        
+        if progress <= 30:
+            return 'progress-bar-danger'
+        elif progress <= 60:
+            return 'progress-bar-warning'
+        elif progress <= 90:
+            return 'progress-bar-info'
+        else:
+            return 'progress-bar-success'
+
+    @property
+    def progress_percentage(self):
+        """Calculate current progress percentage"""
+        progress = 0
+        
+        # Document uploads (50% - 10% each)
+        documents = [
+            self.graduation_certificate_data,
+            self.birth_certificate_data,
+            self.family_card_data,
+            self.report_card_data,
+            self.photo_data
+        ]
+        progress += sum(10 for doc in documents if doc is not None)
+        
+        # Registration submission (20%)
+        if self.initial_form_submitted:
+            progress += 20
+        
+        # Document verification (20%)
+        if self.status == 'accepted':
+            progress += 20
+        
+        # Payment completion (10%)
+        if self.payment_status == 'verified':
+            progress += 10
+            
+        return progress
+
+    def get_progress_class(self):
+        """Return Bootstrap class based on progress percentage"""
+        progress = self.progress_percentage
+        
+        if progress <= 30:
+            return 'progress-bar-danger'
+        elif progress <= 60:
+            return 'progress-bar-warning'
+        elif progress <= 90:
+            return 'progress-bar-info'
+        else:
+            return 'progress-bar-success'

@@ -160,13 +160,26 @@ class ProfileProgress {
         const uploadedDocs = Array.from(this.documentInputs)
             .filter(input => input.dataset.uploaded === 'true').length;
             
-        const profileWeight = 0.6; // Profile completion is 60% of total progress
-        const docsWeight = 0.4;    // Document uploads are 40% of total progress
+        // Weights for different components
+        const profileWeight = 0.3; // Profile completion is 30% of total progress
+        const docsWeight = 0.3;    // Document uploads are 30% of total progress
+        const statusWeight = 0.2;  // Application status is 20% of total progress
+        const paymentWeight = 0.2; // Payment verification is 20% of total progress
         
         const profileProgress = (completedFields / totalFields) * profileWeight * 100;
         const docsProgress = (uploadedDocs / totalDocs) * docsWeight * 100;
         
-        return Math.round(profileProgress + docsProgress);
+        // Get application status and payment status from data attributes
+        const formStatus = document.querySelector('[data-application-status]')?.dataset.applicationStatus;
+        const paymentStatus = document.querySelector('[data-payment-status]')?.dataset.paymentStatus;
+        
+        // Calculate status progress
+        const statusProgress = (formStatus === 'accepted') ? statusWeight * 100 : 0;
+        
+        // Calculate payment progress
+        const paymentProgress = (paymentStatus === 'verified') ? paymentWeight * 100 : 0;
+        
+        return Math.round(profileProgress + docsProgress + statusProgress + paymentProgress);
     }
 
     updateProgress() {

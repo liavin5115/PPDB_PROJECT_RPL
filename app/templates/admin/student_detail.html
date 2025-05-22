@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Detail Siswa{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard
+        </a>
+    </div>
+
+    <!-- Student Info Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-person-vcard me-2"></i>Informasi Siswa
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <!-- Personal Information -->
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="bi bi-person me-2"></i>Data Diri
+                    </h6>
+                    <dl class="row g-3">
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-person"></i> Nama Lengkap
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.full_name if student.full_name else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-gender-ambiguous"></i> Jenis Kelamin
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.gender if student.gender else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-geo-alt"></i> Tempat Lahir
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.birth_place if student.birth_place else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-calendar"></i> Tanggal Lahir
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.birth_date.strftime('%d-%m-%Y') if student.birth_date and not student.birth_date is string else student.birth_date if student.birth_date else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-book"></i> Agama
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.religion if student.religion else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-telephone"></i> No. Telepon
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.phone if student.phone else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-house"></i> Alamat
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.address if student.address else '-' }}</dd>
+                    </dl>
+                </div>
+
+                <!-- Academic and Parent Information -->
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="bi bi-mortarboard me-2"></i>Data Akademik & Orang Tua
+                    </h6>
+                    <dl class="row g-3">
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-building"></i> Asal Sekolah
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.previous_school if student.previous_school else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-laptop"></i> Program Keahlian
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">
+                            {% set major_names = {
+                                'tkj': 'Teknik Komputer dan Jaringan',
+                                'rpl': 'Rekayasa Perangkat Lunak',
+                                'mm': 'Multimedia'
+                            } %}
+                            {{ major_names.get(student.major, 'Belum dipilih') }}
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-people"></i> Nama Orang Tua
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.parent_name if student.parent_name else '-' }}</dd>
+
+                        <dt class="col-sm-4">
+                            <span class="data-label">
+                                <i class="bi bi-telephone"></i> No. HP Orang Tua
+                            </span>
+                        </dt>
+                        <dd class="col-sm-8">{{ student.parent_phone if student.parent_phone else '-' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Pendaftaran Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-clipboard-check me-2"></i>Status Pendaftaran
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-3">Status Saat Ini:</h6>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-{{ 'success' if student.status == 'accepted' 
+                                           else 'danger' if student.status == 'rejected'
+                                           else 'warning' }} fs-6 me-2">
+                            {{ 'Diterima' if student.status == 'accepted'
+                               else 'Ditolak' if student.status == 'rejected'
+                               else 'Menunggu Keputusan' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    {% if student.status == 'pending' %}
+                    <h6 class="mb-3">Aksi:</h6>
+                    <div class="btn-group">
+                        <form class="d-inline" action="{{ url_for('main.update_status', form_id=student.id) }}" method="POST">
+                            {{ form.csrf_token if form }}
+                            <input type="hidden" name="status" value="accepted">
+                            <button type="submit" class="btn btn-success me-2" title="Terima Pendaftaran">
+                                <i class="bi bi-check-lg me-1"></i>Terima Pendaftaran
+                            </button>
+                        </form>
+                        <form class="d-inline" action="{{ url_for('main.update_status', form_id=student.id) }}" method="POST">
+                            {{ form.csrf_token if form }}
+                            <input type="hidden" name="status" value="rejected">
+                            <button type="submit" class="btn btn-danger" title="Tolak Pendaftaran">
+                                <i class="bi bi-x-lg me-1"></i>Tolak Pendaftaran
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Status Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-credit-card me-2"></i>Status Pembayaran
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-3">Status Pembayaran:</h6>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-{{ 'success' if student.payment_status == 'verified'
+                                           else 'warning' if student.payment_status == 'submitted'
+                                           else 'secondary' }} fs-6 me-2">
+                            {{ 'Terverifikasi' if student.payment_status == 'verified'
+                               else 'Menunggu Verifikasi' if student.payment_status == 'submitted'
+                               else 'Belum Dibayar' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    {% if student.status == 'accepted' and student.payment_status == 'submitted' %}
+                    <h6 class="mb-3">Aksi:</h6>
+                    <form action="{{ url_for('main.verify_payment', form_id=student.id) }}" method="POST">
+                        {{ form.csrf_token if form }}
+                        <input type="hidden" name="payment_status" value="verified">
+                        <button type="submit" class="btn btn-success" title="Verifikasi Pembayaran">
+                            <i class="bi bi-check-circle me-1"></i>Verifikasi Pembayaran
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if student.payment_proof %}
+            <div class="mt-4">
+                <h6 class="mb-3">Bukti Pembayaran:</h6>
+                <img src="{{ url_for('static', filename='uploads/' + student.payment_proof) }}" 
+                     alt="Bukti Pembayaran" 
+                     class="img-fluid border rounded"
+                     style="max-width: 300px">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Documents Card -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-file-earmark-text me-2"></i>Dokumen
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if not documents %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>Belum ada dokumen yang diunggah.
+            </div>
+            {% else %}
+            <div class="row g-4">
+                {% for doc_id, doc_name, doc_data, doc_mime in documents %}
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center p-3 border rounded">
+                        <div class="me-3">
+                            <i class="bi bi-file-earmark{{ '-image' if 'image' in doc_mime else '-pdf' if 'pdf' in doc_mime else '' }} fs-3 
+                                         text-{{ 'success' if doc_data else 'secondary' }}"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ doc_name }}</h6>
+                            <p class="mb-0 small text-muted">
+                                {% if doc_data %}
+                                <i class="bi bi-check-circle-fill text-success me-1"></i>Dokumen tersedia
+                                {% else %}
+                                <i class="bi bi-x-circle-fill text-danger me-1"></i>Belum diunggah
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if doc_data %}
+                        <button type="button" 
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#fileModal_{{ doc_id }}">
+                            <i class="bi bi-eye me-1"></i>Lihat
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Document Viewer Modals -->
+{% for doc_id, doc_name, doc_data, doc_mime in documents %}
+    {% if doc_data %}
+    <div class="modal fade" id="fileModal_{{ doc_id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-earmark-text me-2"></i>{{ doc_name }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    {% if 'image' in doc_mime %}
+                        <img src="data:{{ doc_mime }};base64,{{ doc_data|b64encode }}" 
+                            class="img-fluid w-100" 
+                            alt="{{ doc_name }}">
+                    {% elif 'pdf' in doc_mime %}
+                        <embed src="data:{{ doc_mime }};base64,{{ doc_data|b64encode }}"
+                            type="application/pdf"
+                            width="100%"
+                            height="600px">
+                    {% else %}
+                        <div class="alert alert-warning m-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Format file tidak didukung untuk pratinjau
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer border-top">
+                    <a href="{{ url_for('main.download_file', form_id=student.id, document_type=doc_id) }}" 
+                       class="btn btn-primary">
+                        <i class="bi bi-download me-1"></i>Unduh
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block styles %}
+<style>
+    .data-section {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        background: var(--bs-card-bg);
+    }
+    
+    .data-section:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .data-label {
+        color: var(--bs-secondary);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    [data-bs-theme="dark"] .data-section {
+        background: var(--bs-dark);
+    }
+
+    [data-bs-theme="dark"] .data-section:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+</style>
+{% endblock %}
